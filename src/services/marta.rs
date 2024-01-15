@@ -1,0 +1,62 @@
+use std::collections::HashMap;
+
+use cached::proc_macro::once;
+use serde::Deserialize;
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub struct TrainArrival {
+    pub destination: String,
+    pub direction: String,
+    pub event_time: String,
+    pub line: String,
+    pub next_arr: String,
+    pub station: String,
+    pub train_id: String,
+    pub waiting_seconds: String,
+    pub waiting_time: String,
+}
+
+pub struct Station {
+    pub name: String,
+    pub arrivals: Vec<TrainArrival>,
+}
+
+impl Station {
+    // station fields all end with " STATION" -- kinda redundant huh
+    pub fn station_name(&self) -> String {
+        let rind = self.name.rfind(' ').unwrap_or(self.name.len());
+        self.name[0..rind].to_lowercase()
+    }
+}
+
+#[once(time = 10, result = true, sync_writes = true)]
+pub async fn arrivals() -> Result<Vec<TrainArrival>, reqwest::Error> {
+    reqwest::get(
+        "http://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals",
+    )
+    .await?
+    .json()
+    .await
+}
+
+pub async fn arrivals_by_station() -> Vec<Station> {
+    let mut res: Vec<Station> = vec![];
+    let mut vec: Vec<TrainArrival> = vec![];
+    let mut arrivals = arrivals().await.unwrap();
+    arrivals.sort_by(|a, b| a.station.cmp(&b.station));
+
+    for arrival in arrivals.drain(..) {
+        if vec.is_empty() || vec.last().unwrap().station == arrival.station {
+            vec.push(arrival.clone());
+        } else {
+            let station_name = vec.last().unwrap().station.clone();
+            vec.sort_by(|a, b| a.waiting_seconds.cmp(&b.waiting_seconds));
+            res.push(Station {
+                arrivals: vec.drain(..).collect(),
+                name: station_name,
+            });
+        }
+    }
+    res
+}

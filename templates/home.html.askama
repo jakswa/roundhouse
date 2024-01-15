@@ -1,5 +1,13 @@
 {% extends "layout.html.askama" %}
 
 {% block content %}
-<h1 class="text-slate-900">HI</h1>
+<h1 class="px-2 py-3">Stations</h1>
+
+<ul>
+{% for station in stations %}
+	<li class="flex items-center">
+		<span class="capitalize">{{station.station_name()}}</span>
+	</li>
+{% endfor %}
+</ul>
 {% endblock %}

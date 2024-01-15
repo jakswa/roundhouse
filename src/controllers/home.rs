@@ -5,7 +5,7 @@ use axum::response::IntoResponse;
 
 async fn home_index() -> impl IntoResponse {
     super::HtmlTemplate(HomeResponse {
-        app_name: "loco".to_string(),
+        stations: crate::services::marta::arrivals_by_station().await,
     })
 }
 
