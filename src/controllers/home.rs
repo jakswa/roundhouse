@@ -1,11 +1,14 @@
 use loco_rs::prelude::*;
 
 use crate::views::home::HomeResponse;
+use axum::response::IntoResponse;
 
-async fn current() -> Result<Json<HomeResponse>> {
-    format::json(HomeResponse::new("loco"))
+async fn home_index() -> impl IntoResponse {
+    super::HtmlTemplate(HomeResponse {
+        app_name: "loco".to_string(),
+    })
 }
 
 pub fn routes() -> Routes {
-    Routes::new().add("/", get(current))
+    Routes::new().add("/", get(home_index))
 }

@@ -33,12 +33,18 @@ impl Hooks for App {
     }
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
-        AppRoutes::empty()
-            .prefix("/api")
-            .add_route(controllers::home::routes())
+        AppRoutes::empty().add_route(controllers::home::routes())
     }
 
     fn connect_workers<'a>(_p: &'a mut Processor, _ctx: &'a AppContext) {}
+
+    async fn after_routes(router: axum::Router, _ctx: &AppContext) -> Result<axum::Router> {
+        // add a static file route for the /public directory
+        let serve_dir = tower_http::services::ServeDir::new("public");
+        Ok(router
+            .nest_service("/public/:version", serve_dir)
+            .layer(tower_http::compression::CompressionLayer::new()))
+    }
 
     fn register_tasks(_tasks: &mut Tasks) {}
 }

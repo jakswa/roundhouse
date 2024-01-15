@@ -1,15 +1,7 @@
-use serde::{Deserialize, Serialize};
+use askama::Template;
 
-impl HomeResponse {
-    #[must_use]
-    pub fn new(app_name: &str) -> Self {
-        Self {
-            app_name: app_name.to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Template)]
+#[template(path = "home.html.askama", escape = "html")]
 pub struct HomeResponse {
     pub app_name: String,
 }
