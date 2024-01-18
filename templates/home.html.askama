@@ -1,18 +1,27 @@
 {% extends "layout.html.askama" %}
 
-{% block content %}
-<h1 class="px-2 py-3">Stations</h1>
+{% block head %}
+<!-- <script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script> -->
+{% endblock %}
 
-<ul>
-{% for station in stations %}
-	<li class="flex items-center">
-		<span class="capitalize">{{station.station_name()}}</span>
-		<ul>
-		{% for arrival in station.arrivals %}
-			<li>({{arrival.destination}}) {{ arrival.direction }} in {{ arrival.waiting_seconds }}</li>
-		{% endfor %}
-		</ul>
-	</li>
-{% endfor %}
-</ul>
+{% block content %}
+<div id="station-list"><!-- hx-get="/" hx-trigger="every 10s"> -->
+	<h1 class="text-lg font-medium px-2 py-4">Stations</h1>
+
+	<ul>
+	{% for station in stations %}
+		<li class="border-t flex justify-between items-center space-x-2 p-4">
+			<span class="capitalize whitespace-nowrap">{{station.station_name()}}</span>
+			<div class="flex flex-wrap gap-2 gap-y-4">
+				{% for arrival in station.arrivals %}
+				<div class="flex">
+					<span class="font-mono font-black text-xl rounded-l-full p-2 pl-4 bg-gray-300">{{ arrival.direction }}</span>
+					<span class="font-mono text-xl rounded-r-full p-2 pr-4 bg-gray-200">{{ arrival.wait_min() }}</span>
+				</div>
+				{% endfor %}
+			</div>
+		</li>
+	{% endfor %}
+	</ul>
+</div>
 {% endblock %}

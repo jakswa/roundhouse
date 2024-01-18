@@ -15,6 +15,13 @@ pub struct TrainArrival {
     pub waiting_time: String,
 }
 
+impl TrainArrival {
+    pub fn wait_min(&self) -> String {
+        let secs = self.waiting_seconds.parse::<i64>().unwrap();
+        format!(":{:02}", secs / 60)
+    }
+}
+
 pub struct Station {
     pub name: String,
     pub arrivals: Vec<TrainArrival>,
