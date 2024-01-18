@@ -12,7 +12,7 @@
 	{% for station in stations %}
 		<li class="border-t flex justify-between items-center space-x-2 p-4">
 			<span class="capitalize whitespace-nowrap">{{station.station_name()}}</span>
-			<div class="flex flex-wrap gap-2 gap-y-4">
+			<div class="flex flex-wrap justify-end gap-2 gap-y-4">
 				{% for arrival in station.arrivals %}
 				<div class="flex">
 					<span class="font-mono font-black text-xl rounded-l-full p-2 pl-4 bg-gray-300">{{ arrival.direction }}</span>
