@@ -11,7 +11,7 @@
     {% block head %}{% endblock %}
   </head>
 
-  <body hx-ext="morphdom-swap">
+  <body hx-ext="morph">
     {% block content %}
     {% endblock %}
   </body>
