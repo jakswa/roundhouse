@@ -7,6 +7,11 @@
 {% for station in stations %}
 	<li class="flex items-center">
 		<span class="capitalize">{{station.station_name()}}</span>
+		<ul>
+		{% for arrival in station.arrivals %}
+			<li>({{arrival.destination}}) {{ arrival.direction }} in {{ arrival.waiting_seconds }}</li>
+		{% endfor %}
+		</ul>
 	</li>
 {% endfor %}
 </ul>

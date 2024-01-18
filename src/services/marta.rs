@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use cached::proc_macro::once;
 use serde::Deserialize;
 
@@ -44,18 +42,29 @@ pub async fn arrivals_by_station() -> Vec<Station> {
     let mut res: Vec<Station> = vec![];
     let mut vec: Vec<TrainArrival> = vec![];
     let mut arrivals = arrivals().await.unwrap();
-    arrivals.sort_by(|a, b| a.station.cmp(&b.station));
+    arrivals.sort_by(|a, b| {
+        if a.station == b.station {
+            a.waiting_seconds
+                .parse::<i64>()
+                .unwrap()
+                .cmp(&b.waiting_seconds.parse::<i64>().unwrap())
+        } else {
+            a.station.cmp(&b.station)
+        }
+    });
 
     for arrival in arrivals.drain(..) {
         if vec.is_empty() || vec.last().unwrap().station == arrival.station {
-            vec.push(arrival.clone());
+            if !vec.iter().any(|arr| arrival.direction == arr.direction) {
+                vec.push(arrival.clone());
+            }
         } else {
             let station_name = vec.last().unwrap().station.clone();
-            vec.sort_by(|a, b| a.waiting_seconds.cmp(&b.waiting_seconds));
             res.push(Station {
                 arrivals: vec.drain(..).collect(),
                 name: station_name,
             });
+            vec.push(arrival.clone());
         }
     }
     res
