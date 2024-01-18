@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="station-list" hx-get="/" hx-ext="morphdom-swap" hx-swap="morphdom" hx-trigger="every 10s">
+<div id="station-list" hx-get="/" hx-swap="morphdom" hx-trigger="every 10s">
 	<h1 class="text-lg font-medium px-2 py-4">Stations</h1>
 
 	<ul>
