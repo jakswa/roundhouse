@@ -20,6 +20,16 @@ impl TrainArrival {
         let secs = self.waiting_seconds.parse::<i64>().unwrap();
         format!(":{:02}", secs / 60)
     }
+
+    pub fn train_color(&self) -> &str {
+        match self.line.as_ref() {
+            "RED" => "bg-red-400 border-red-500",
+            "GOLD" => "bg-yellow-400 border-yellow-500",
+            "GREEN" => "bg-green-400 border-green-500",
+            "BLUE" => "bg-blue-400 border-blue-500",
+            _ => "violet-700",
+        }
+    }
 }
 
 pub struct Station {
@@ -67,6 +77,13 @@ pub async fn arrivals_by_station() -> Vec<Station> {
             }
         } else {
             let station_name = vec.last().unwrap().station.clone();
+            // show arrivals for the station in consistent order
+            vec.sort_by_key(|arr| match arr.direction.as_ref() {
+                "N" => 0,
+                "S" => 1,
+                "E" => 2,
+                _w => 3,
+            });
             res.push(Station {
                 arrivals: vec.drain(..).collect(),
                 name: station_name,

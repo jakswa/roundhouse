@@ -7,18 +7,21 @@
 {% endblock %}
 
 {% block content %}
-<div id="station-list" hx-get="/" hx-swap="morph" hx-trigger="every 10s">
-	<h1 class="text-lg font-medium px-2 py-4">Stations</h1>
+<div id="station-list" class="dark:bg-neutral-800 dark:text-zinc-50"
+	hx-get="/" hx-swap="morph" hx-trigger="every 10s">
+	<h1 class="text-xl font-bold px-2 py-4">Stations</h1>
 
 	<ul>
+	<!-- dynamically bg-blue-400 bg-green-400 bg-yellow-400 bg-red-400 -->
+	<!-- dynamically border-blue-500 border-green-500 border-yellow-500 border-red-500 -->
 	{% for station in stations %}
-		<li class="border-t flex justify-between items-center space-x-2 p-4">
+		<li class="border-t dark:border-zinc-600 flex justify-between items-center space-x-2 p-4">
 			<span class="capitalize whitespace-nowrap">{{station.station_name()}}</span>
 			<div class="flex flex-wrap justify-end gap-2 gap-y-4">
 				{% for arrival in station.arrivals %}
 				<div class="flex">
-					<span class="font-mono font-black text-xl rounded-l-full p-2 pl-4 bg-gray-300">{{ arrival.direction }}</span>
-					<span class="font-mono text-xl rounded-r-full p-2 pr-4 bg-gray-200">{{ arrival.wait_min() }}</span>
+					<span class="font-mono border-r {{arrival.train_color()}} dark:text-neutral-800 text-white font-black text-xl rounded-l-full p-2 pl-4">{{ arrival.direction }}</span>
+					<span class="font-mono bg-neutral-200 dark:bg-zinc-600 text-xl rounded-r-full p-2 pl-1 pr-4">{{ arrival.wait_min() }}</span>
 				</div>
 				{% endfor %}
 			</div>
