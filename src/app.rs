@@ -33,7 +33,7 @@ impl Hooks for App {
     }
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
-        AppRoutes::empty().add_route(controllers::home::routes())
+        AppRoutes::empty().add_route(controllers::trains::routes())
     }
 
     fn connect_workers<'a>(_p: &'a mut Processor, _ctx: &'a AppContext) {}

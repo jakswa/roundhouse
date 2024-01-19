@@ -1,4 +1,4 @@
-pub mod home;
+pub mod trains;
 
 // picking the controller module to house the template glue
 use askama::Template;
