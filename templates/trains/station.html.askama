@@ -1,0 +1,23 @@
+{% extends "layout.html.askama" %}
+
+{% block content %}
+<div id="station-view" hx-get="/stations/{{station_name}}" hx-swap="morph" hx-trigger="every 10s">
+	<h1 class="text-xl font-bold px-2 py-4 capitalize">{{station_name}}</h1>
+
+	<ul>
+	{% for arrival in arrivals %}
+		<li>
+			<a href="/trains/{{arrival.train_id}}" class="border-t dark:border-zinc-600 dark:hover:bg-stone-800 flex justify-between items-center space-x-2 p-4">
+				<div class="flex flex-wrap justify-end gap-2 gap-y-4">
+					<div class="flex">
+						<span class="font-mono border-r {{arrival.train_color()}} dark:text-zinc-800 text-white font-black text-xl rounded-l-full p-2 pl-4">{{ arrival.direction }}</span>
+						<span class="bg-neutral-200 dark:bg-zinc-600 text-lg rounded-r-full p-2 pl-2 pr-4">{{ arrival.destination }}</span>
+					</div>
+				</div>
+				<span class="capitalize whitespace-nowrap">{{arrival.waiting_time}}</span>
+			</a>
+		</li>
+	{% endfor %}
+	</ul>
+</div>
+{% endblock %}

@@ -1,7 +1,8 @@
 #![allow(clippy::unused_async)]
 use loco_rs::prelude::*;
 
-use crate::views::trains::TrainsIndexResponse;
+use crate::views::trains::*;
+use axum::extract::Path;
 use axum::response::IntoResponse;
 
 async fn trains_index() -> impl IntoResponse {
@@ -10,6 +11,15 @@ async fn trains_index() -> impl IntoResponse {
     })
 }
 
+async fn trains_station(Path(station_name): Path<String>) -> impl IntoResponse {
+    super::HtmlTemplate(TrainsStationResponse {
+        arrivals: crate::services::marta::single_station_arrivals(&station_name).await,
+        station_name,
+    })
+}
+
 pub fn routes() -> Routes {
-    Routes::new().add("/", get(trains_index))
+    Routes::new()
+        .add("/", get(trains_index))
+        .add("/stations/:station_name", get(trains_station))
 }

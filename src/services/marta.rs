@@ -24,7 +24,7 @@ impl TrainArrival {
     pub fn train_color(&self) -> &str {
         match self.line.as_ref() {
             "RED" => "bg-red-400 border-red-500",
-            "GOLD" => "bg-yellow-400 border-yellow-500",
+            "GOLD" => "bg-yellow-400 border-yellow-600",
             "GREEN" => "bg-green-400 border-green-500",
             "BLUE" => "bg-blue-400 border-blue-500",
             _ => "violet-700",
@@ -55,6 +55,18 @@ pub async fn arrivals() -> Result<Vec<TrainArrival>, reqwest::Error> {
     .await
 }
 
+pub async fn single_station_arrivals(station_name: &String) -> Vec<TrainArrival> {
+    let upper_station = station_name.to_ascii_uppercase();
+    let mut list: Vec<TrainArrival> = arrivals()
+        .await
+        .unwrap_or(vec![])
+        .into_iter()
+        .filter(|arr| arr.station == upper_station)
+        .collect();
+    list.sort_by_key(|arr| arr.waiting_seconds.parse::<i64>().unwrap());
+    list
+}
+
 pub async fn arrivals_by_station() -> Vec<Station> {
     let mut res: Vec<Station> = vec![];
     let mut vec: Vec<TrainArrival> = vec![];
@@ -76,7 +88,7 @@ pub async fn arrivals_by_station() -> Vec<Station> {
                 vec.push(arrival.clone());
             }
         } else {
-            let station_name = vec.last().unwrap().station.clone();
+            let station_name = vec.last().unwrap().station.to_lowercase();
             // show arrivals for the station in consistent order
             vec.sort_by_key(|arr| match arr.direction.as_ref() {
                 "N" => 0,

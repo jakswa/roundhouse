@@ -8,10 +8,20 @@
     <link rel="stylesheet" href="/public/v002/styles.css"></link>
     <!--<link rel="icon" href="/public/v002/favicon.ico" />-->
 
+    <!-- used for update-polling -->
+  	<script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
+  	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph.min.js"></script>
+  	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
+
     {% block head %}{% endblock %}
   </head>
 
-  <body hx-ext="morph">
+
+  {# annoyance: gotta mention the tailwindcss classes you programmatically build in code :-\ #}
+  {# dynamically bg-blue-400 bg-green-400 bg-yellow-400 bg-red-400 #}
+  {# dynamically border-blue-500 border-green-500 border-yellow-600 border-red-500 #}
+
+  <body hx-ext="morph" class="dark:bg-zinc-800 dark:text-zinc-50">
     {% block content %}
     {% endblock %}
   </body>
