@@ -24,11 +24,23 @@ impl TrainArrival {
     pub fn train_color(&self) -> &str {
         match self.line.as_ref() {
             "RED" => "bg-red-400 border-red-500",
-            "GOLD" => "bg-yellow-400 border-yellow-600",
+            "GOLD" => "bg-yellow-400 border-yellow-500",
             "GREEN" => "bg-green-400 border-green-500",
             "BLUE" => "bg-blue-400 border-blue-500",
             _ => "violet-700",
         }
+    }
+    // station fields all end with " STATION" -- kinda redundant huh
+    pub fn station_name(&self) -> String {
+        let rind = self.station.rfind(' ').unwrap_or(self.station.len());
+        self.station[0..rind].to_lowercase()
+    }
+
+    pub fn is_destination(&self) -> bool {
+        self.station
+            .find(&self.destination.to_ascii_uppercase())
+            .unwrap_or(1)
+            == 0
     }
 }
 
@@ -62,6 +74,17 @@ pub async fn single_station_arrivals(station_name: &String) -> Vec<TrainArrival>
         .unwrap_or(vec![])
         .into_iter()
         .filter(|arr| arr.station == upper_station)
+        .collect();
+    list.sort_by_key(|arr| arr.waiting_seconds.parse::<i64>().unwrap());
+    list
+}
+
+pub async fn single_train_arrivals(train_id: &String) -> Vec<TrainArrival> {
+    let mut list: Vec<TrainArrival> = arrivals()
+        .await
+        .unwrap_or(vec![])
+        .into_iter()
+        .filter(|arr| &arr.train_id == train_id)
         .collect();
     list.sort_by_key(|arr| arr.waiting_seconds.parse::<i64>().unwrap());
     list

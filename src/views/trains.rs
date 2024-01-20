@@ -12,3 +12,10 @@ pub struct TrainsStationResponse {
     pub station_name: String,
     pub arrivals: Vec<crate::services::marta::TrainArrival>,
 }
+
+#[derive(Template)]
+#[template(path = "trains/show.html.askama", escape = "html")]
+pub struct TrainsShowResponse {
+    pub train_id: String,
+    pub arrivals: Vec<crate::services::marta::TrainArrival>,
+}
