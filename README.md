@@ -8,6 +8,8 @@ Features:
 - dark/light mode and other styling using tailwindcss
 - polls every 10s for updates if you sit in a view (htmx/morphing)
 
+![image](https://github.com/jakswa/roundhouse/assets/137793/f7725b7e-1cc0-477f-b020-3534fe48039c)
+
 ## Quick Start
 
 0. install `bun` and `cargo`/rust
