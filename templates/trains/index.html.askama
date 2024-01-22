@@ -7,7 +7,7 @@
 	<ul>
 	{% for station in stations %}
 		<li>
-			<a href="/stations/{{station.name.to_lowercase()}}" class="border-t dark:border-zinc-600 dark:hover:bg-stone-800 flex justify-between items-center space-x-2 p-4">
+			<a href="/stations/{{station.name.to_lowercase()}}" class="{% include "_list_link_style.html.askama" %}">
 				<span class="capitalize whitespace-nowrap">{{station.station_name()}}</span>
 				<div class="flex flex-wrap justify-end gap-2 gap-y-4">
 					{% for arrival in station.arrivals %}

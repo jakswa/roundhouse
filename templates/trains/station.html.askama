@@ -7,7 +7,7 @@
 	<ul>
 	{% for arrival in arrivals %}
 		<li>
-			<a href="/trains/{{arrival.train_id}}" class="border-t dark:border-zinc-600 dark:hover:bg-stone-800 flex justify-between items-center space-x-2 p-4">
+			<a href="/trains/{{arrival.train_id}}" class="{% include "_list_link_style.html.askama" %}">
 				<div class="flex flex-wrap justify-end gap-2 gap-y-4">
 					<div class="flex">
 						<span class="font-mono border-r {{arrival.train_color()}} dark:text-zinc-800 text-white font-black text-xl rounded-l-full p-2 pl-4">{{ arrival.direction }}</span>
