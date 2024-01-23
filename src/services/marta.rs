@@ -16,10 +16,11 @@ pub struct TrainArrival {
 }
 
 impl TrainArrival {
+    pub fn is_arriving(&self) -> bool {
+        self.waiting_time == "Arriving"
+    }
+
     pub fn wait_min(&self) -> String {
-        if self.waiting_time == "Arriving" {
-            return ":🚉".to_string();
-        }
         let secs = self.waiting_seconds.parse::<i64>().unwrap();
         format!(":{:02}", secs / 60)
     }
