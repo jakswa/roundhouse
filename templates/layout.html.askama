@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block pagetitle %}{% endblock %}martalith</title>
     <meta name="description" content="a transit experiment" />
-    <link rel="stylesheet" href="/public/v004/styles.css"></link>
-    <!--<link rel="icon" href="/public/v004/favicon.ico" />-->
+    <link rel="stylesheet" href="/public/v005/styles.css"></link>
+    <!--<link rel="icon" href="/public/v005/favicon.ico" />-->
 
     <!-- used for update-polling -->
   	<script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
