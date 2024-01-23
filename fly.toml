@@ -1,13 +1,18 @@
-# fly.toml app configuration file generated for roundhouse on 2024-01-17T18:29:29-05:00
+# fly.toml app configuration file generated for roundhouse-staging on 2024-01-22T20:03:13-05:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = "roundhouse"
+app = "roundhouse-staging"
 primary_region = "atl"
 
+[env]
+RH_PORT=8080
+
+[build]
+
 [http_service]
-  internal_port = 3000
+  internal_port = 8080
   force_https = true
   auto_stop_machines = true
   auto_start_machines = true
