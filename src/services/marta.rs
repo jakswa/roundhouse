@@ -63,12 +63,16 @@ impl Station {
 
 #[once(time = 10, result = true, sync_writes = true)]
 pub async fn arrivals() -> Result<Vec<TrainArrival>, reqwest::Error> {
-    reqwest::get(
-        "http://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals",
-    )
-    .await?
-    .json()
-    .await
+    reqwest::Client::builder()
+        // ugh always have SSL probs with itsmarta.com
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap()
+        .get("http://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals")
+        .send()
+        .await?
+        .json()
+        .await
 }
 
 pub async fn single_station_arrivals(station_name: &String) -> Vec<TrainArrival> {
