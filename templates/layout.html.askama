@@ -16,6 +16,15 @@
   	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph.min.js"></script>
   	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
 
+	<!-- temporary, clearing out service workers -->
+	<script type="text/javascript">
+	  navigator.serviceWorker.getRegistrations().then(function(registrations) {
+	    for(let registration of registrations) {
+	      registration.unregister();
+	    } 
+	  });
+	</script>
+
     {% block head %}{% endblock %}
   </head>
 
