@@ -1,0 +1,19 @@
+<li>
+	<a href="/stations/{{station.name.to_lowercase()}}" class="{% include "_list_link_style.html.askama" %}">
+		<span class="capitalize whitespace-nowrap">{{station.station_name()}}</span>
+		<div class="flex flex-wrap justify-end gap-2 gap-y-4">
+			{% for arrival in station.arrivals %}
+			<div class="flex font-mono">
+				<span class="border-r {{arrival.train_color()}} dark:text-zinc-800 text-white font-black text-xl rounded-l-full p-2 pl-4">{{ arrival.direction }}</span>
+				<span class="bg-neutral-200 dark:bg-zinc-600 text-xl font-black text-center rounded-r-full p-2 pl-1 pr-4 w-14">
+					{% if arrival.is_arriving() %}
+						{% include "_tram_front_icon.html.askama" %}
+					{% else %}
+						{{ arrival.wait_min() }}
+					{% endif %}
+				</span>
+			</div>
+			{% endfor %}
+		</div>
+	</a>
+</li>

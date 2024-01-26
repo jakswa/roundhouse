@@ -48,6 +48,7 @@ impl TrainArrival {
     }
 }
 
+#[derive(Clone)]
 pub struct Station {
     pub name: String,
     pub arrivals: Vec<TrainArrival>,
