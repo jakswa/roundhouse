@@ -7,7 +7,9 @@
     <meta name="description" content="{% block pagedesc %}atlanta marta train dashboard{% endblock %}" />
 	<link rel="manifest" href="/public/v000/manifest.json">
     <link rel="stylesheet" href="/public/v008/styles.css"></link>
+
     <link rel="icon" href="/public/v008/favicon.png" />
+    <link rel="apple-touch-icon" href="/public/v008/favicon.png" />
 
     <!-- used for update-polling -->
   	<script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
