@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use loco_rs::{
-    app::{AppContext, Hooks},
+    app::{AppContext, Hooks, Initializer},
     boot::{create_app, BootResult, StartMode},
     controller::AppRoutes,
     environment::Environment,
@@ -38,12 +38,10 @@ impl Hooks for App {
 
     fn connect_workers<'a>(_p: &'a mut Processor, _ctx: &'a AppContext) {}
 
-    async fn after_routes(router: axum::Router, _ctx: &AppContext) -> Result<axum::Router> {
-        // add a static file route for the /public directory
-        let serve_dir = tower_http::services::ServeDir::new("public");
-        Ok(router
-            .nest_service("/public/:version", serve_dir)
-            .layer(tower_http::compression::CompressionLayer::new()))
+    async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
+        Ok(vec![Box::new(
+            crate::initializers::assets::AssetsInitializer,
+        )])
     }
 
     fn register_tasks(_tasks: &mut Tasks) {}
