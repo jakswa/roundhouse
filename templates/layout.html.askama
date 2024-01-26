@@ -3,10 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{% block pagetitle %}{% endblock %}martalith</title>
-    <meta name="description" content="a transit experiment" />
-    <link rel="stylesheet" href="/public/v007/styles.css"></link>
-    <!--<link rel="icon" href="/public/v007/favicon.ico" />-->
+    <title>{% block pagetitle %}{% endblock %}marta.io</title>
+    <meta name="description" content="{% block pagedesc %}atlanta marta train dashboard{% endblock %}" />
+	<link rel="manifest" href="/public/v000/manifest.json">
+    <link rel="stylesheet" href="/public/v008/styles.css"></link>
+    <link rel="icon" href="/public/v008/favicon.png" />
 
     <!-- used for update-polling -->
   	<script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>

@@ -1,0 +1,15 @@
+{
+  "short_name": "marta.io",
+  "name": "marta.io",
+  "icons": [
+    {
+      "src": "public/v001/favicon.png",
+      "sizes": "260x260",
+      "type": "image/png"
+    },
+  ],
+  "start_url": "/",
+  "display": "minimal-ui",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
