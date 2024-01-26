@@ -8,6 +8,7 @@ primary_region = "atl"
 
 [env]
 RH_PORT=8080
+LOCO_ENV="production"
 
 [build]
 

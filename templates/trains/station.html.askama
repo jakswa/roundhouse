@@ -2,7 +2,23 @@
 
 {% block content %}
 <div id="station-view" hx-get="/stations/{{station_name}}" hx-swap="morph" hx-trigger="every 10s">
-	<h1 class="text-xl font-bold px-2 py-4 capitalize">{{station_name}}</h1>
+	<h1 class="border-b dark:border-zinc-600 text-xl font-bold px-2 py-4 capitalize">
+		{% if is_starred %}
+		<span class="mb-2 mr-2 ">
+			{% include "_star_icon.html.askama" %}
+		</span>
+		{% endif %}
+		{{station_name}}
+		{% if is_starred %}
+			<a href="/unstar/{{station_name}}" class="ml-2 p-1 pb-2 rounded bg-indigo-600">
+				{% include "_star_off_icon.html.askama" %}
+			</a>
+		{% else %}
+			<a href="/star/{{station_name}}" class="ml-2 p-1 pb-2 rounded bg-indigo-600">
+				{% include "_star_icon.html.askama" %}
+			</a>
+		{% endif %}
+	</h1>
 
 	<ul>
 	{% for arrival in arrivals %}
