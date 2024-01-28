@@ -6,6 +6,7 @@ use axum::extract::Path;
 use axum::response::{IntoResponse, Redirect};
 
 use axum_extra::extract::cookie::{Cookie, CookieJar};
+use http::header;
 
 async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
     let stations = crate::services::marta::arrivals_by_station().await;
@@ -24,10 +25,14 @@ async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
         .filter(|s| starred_station_names.contains(&s.name.to_ascii_uppercase()))
         .map(|s| s.clone())
         .collect::<Vec<crate::services::marta::Station>>();
-    super::HtmlTemplate(TrainsIndexResponse {
-        stations,
-        starred_stations,
-    })
+
+    (
+        [(header::CACHE_CONTROL, "no-store")],
+        super::HtmlTemplate(TrainsIndexResponse {
+            stations,
+            starred_stations,
+        }),
+    )
 }
 
 async fn trains_station(cookies: CookieJar, Path(station_name): Path<String>) -> impl IntoResponse {
@@ -42,11 +47,14 @@ async fn trains_station(cookies: CookieJar, Path(station_name): Path<String>) ->
         })
         .unwrap_or(vec![]);
     let upcase_station = station_name.to_ascii_uppercase();
-    super::HtmlTemplate(TrainsStationResponse {
-        arrivals: crate::services::marta::single_station_arrivals(&station_name).await,
-        station_name,
-        is_starred: starred_station_names.contains(&upcase_station),
-    })
+    (
+        [(header::CACHE_CONTROL, "no-store")],
+        super::HtmlTemplate(TrainsStationResponse {
+            arrivals: crate::services::marta::single_station_arrivals(&station_name).await,
+            station_name,
+            is_starred: starred_station_names.contains(&upcase_station),
+        }),
+    )
 }
 
 async fn star_station(cookies: CookieJar, Path(station_name): Path<String>) -> impl IntoResponse {
@@ -87,10 +95,13 @@ async fn unstar_station(cookies: CookieJar, Path(station_name): Path<String>) ->
 }
 
 async fn trains_show(Path(train_id): Path<String>) -> impl IntoResponse {
-    super::HtmlTemplate(TrainsShowResponse {
-        arrivals: crate::services::marta::single_train_arrivals(&train_id.clone()).await,
-        train_id,
-    })
+    (
+        [(header::CACHE_CONTROL, "no-store")],
+        super::HtmlTemplate(TrainsShowResponse {
+            arrivals: crate::services::marta::single_train_arrivals(&train_id.clone()).await,
+            train_id,
+        }),
+    )
 }
 
 pub fn routes() -> Routes {
