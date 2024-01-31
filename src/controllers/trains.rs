@@ -71,6 +71,7 @@ async fn star_station(cookies: CookieJar, Path(station_name): Path<String>) -> i
     starred_station_names.push(station_name.to_ascii_uppercase());
     let mut cookie = Cookie::new("starred_stations", starred_station_names.join(","));
     cookie.set_path("/");
+    cookie.set_max_age(::cookie::time::Duration::days(365));
     (cookies.add(cookie), Redirect::to("/"))
 }
 
