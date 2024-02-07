@@ -6,10 +6,10 @@
     <title>{% block pagetitle %}{% endblock %}marta.io</title>
     <meta name="description" content="{% block pagedesc %}atlanta marta train dashboard{% endblock %}" />
 	<link rel="manifest" href="/public/v000/manifest.json">
-    <link rel="stylesheet" href="/public/v010/styles.css"></link>
+    <link rel="stylesheet" href="/public/v001/styles.css"></link>
 
-    <link rel="icon" href="/public/v010/favicon.png" />
-    <link rel="apple-touch-icon" href="/public/v010/favicon.png" />
+    <link rel="icon" href="/public/vi01/favicon.png" />
+    <link rel="apple-touch-icon" href="/public/vi01/favicon.png" />
 
     <!-- used for update-polling -->
   	<script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
