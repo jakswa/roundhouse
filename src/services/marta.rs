@@ -1,6 +1,47 @@
 use cached::proc_macro::once;
 use serde::Deserialize;
 
+const STATIONS: [&str; 38] = [
+    "airport",
+    "arts center",
+    "ashby",
+    "avondale",
+    "bankhead",
+    "brookhaven",
+    "buckhead",
+    "chamblee",
+    "civic center",
+    "college park",
+    "decatur",
+    "doraville",
+    "dunwoody",
+    "east lake",
+    "east point",
+    "edgewood candler park",
+    "five points",
+    "garnett",
+    "georgia state",
+    "hamilton e holmes",
+    "indian creek",
+    "inman park",
+    "kensington",
+    "king memorial",
+    "lakewood",
+    "lenox",
+    "lindbergh",
+    "medical center",
+    "midtown",
+    "north ave",
+    "north springs",
+    "oakland city",
+    "omni dome",
+    "peachtree center",
+    "sandy springs",
+    "vine city",
+    "west end",
+    "west lake",
+];
+
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct TrainArrival {
@@ -52,14 +93,6 @@ impl TrainArrival {
 pub struct Station {
     pub name: String,
     pub arrivals: Vec<TrainArrival>,
-}
-
-impl Station {
-    // station fields all end with " STATION" -- kinda redundant huh
-    pub fn station_name(&self) -> String {
-        let rind = self.name.rfind(' ').unwrap_or(self.name.len());
-        self.name[0..rind].to_lowercase()
-    }
 }
 
 #[once(time = 10, result = true, sync_writes = true)]
@@ -114,13 +147,16 @@ pub async fn arrivals_by_station() -> Vec<Station> {
         }
     });
 
+    let mut stations = STATIONS.into_iter();
+    let mut curr_station = stations.next().unwrap();
+
     for arrival in arrivals.drain(..) {
-        if vec.is_empty() || vec.last().unwrap().station == arrival.station {
+        let arrival_station = arrival.station_name();
+        if curr_station == arrival_station {
             if !vec.iter().any(|arr| arrival.direction == arr.direction) {
                 vec.push(arrival.clone());
             }
         } else {
-            let station_name = vec.last().unwrap().station.to_lowercase();
             // show arrivals for the station in consistent order
             vec.sort_by_key(|arr| match arr.direction.as_ref() {
                 "N" => 0,
@@ -128,12 +164,32 @@ pub async fn arrivals_by_station() -> Vec<Station> {
                 "E" => 2,
                 _w => 3,
             });
-            res.push(Station {
-                arrivals: vec.drain(..).collect(),
-                name: station_name,
-            });
-            vec.push(arrival.clone());
+            loop {
+                // cycle/add stations until we find next
+                res.push(Station {
+                    arrivals: vec,
+                    name: curr_station.to_string(),
+                });
+                curr_station = stations.next().unwrap();
+                if curr_station == arrival_station {
+                    break;
+                }
+                vec = vec![];
+            }
+            vec = vec![arrival.clone()];
         }
+    }
+    loop {
+        // cycle/add stations until no more stations.
+        res.push(Station {
+            arrivals: vec,
+            name: curr_station.to_string(),
+        });
+        match stations.next() {
+            None => break,
+            Some(next_station) => curr_station = next_station,
+        }
+        vec = vec![];
     }
     res
 }

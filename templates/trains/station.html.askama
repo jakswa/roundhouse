@@ -21,6 +21,11 @@
 	</h1>
 
 	<ul>
+	{% if arrivals.is_empty() %}
+		<li class="{% include "_list_link_style.html.askama" %}">
+			No data
+		</li>
+	{% endif %}
 	{% for arrival in arrivals %}
 		<li>
 			<a href="/trains/{{arrival.train_id}}" class="{% include "_list_link_style.html.askama" %}">
