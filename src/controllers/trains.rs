@@ -22,7 +22,11 @@ async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
         .unwrap_or(vec![]);
     let starred_stations = stations
         .iter()
-        .filter(|s| starred_station_names.contains(&s.name.to_ascii_uppercase()))
+        .filter(|s| {
+            starred_station_names
+                .iter()
+                .any(|ss| ss.starts_with(&s.name.to_ascii_uppercase()))
+        })
         .map(|s| s.clone())
         .collect::<Vec<crate::services::marta::Station>>();
 
