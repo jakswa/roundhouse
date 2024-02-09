@@ -39,7 +39,10 @@ async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
     )
 }
 
-async fn trains_station(cookies: CookieJar, Path(station_name): Path<String>) -> impl IntoResponse {
+async fn trains_station(
+    cookies: CookieJar,
+    Path(station_name): Path<String>,
+) -> axum::response::Response {
     let starred_station_names = cookies
         .get("starred_stations")
         .map(|cookie| {
@@ -50,15 +53,23 @@ async fn trains_station(cookies: CookieJar, Path(station_name): Path<String>) ->
                 .collect::<Vec<String>>()
         })
         .unwrap_or(vec![]);
+    if !station_name
+        .rfind(' ')
+        .is_some_and(|ind| crate::services::marta::STATIONS.contains(&&station_name[0..ind]))
+    {
+        return http404();
+    }
     let upcase_station = station_name.to_ascii_uppercase();
+    let arrivals = crate::services::marta::single_station_arrivals(&station_name).await;
     (
         [(header::CACHE_CONTROL, "no-store")],
         super::HtmlTemplate(TrainsStationResponse {
-            arrivals: crate::services::marta::single_station_arrivals(&station_name).await,
+            arrivals,
             station_name,
             is_starred: starred_station_names.contains(&upcase_station),
         }),
     )
+        .into_response()
 }
 
 async fn star_station(cookies: CookieJar, Path(station_name): Path<String>) -> impl IntoResponse {
@@ -100,6 +111,9 @@ async fn unstar_station(cookies: CookieJar, Path(station_name): Path<String>) ->
 }
 
 async fn trains_show(Path(train_id): Path<String>) -> impl IntoResponse {
+    if train_id.parse::<u64>().is_err() {
+        return http404();
+    }
     (
         [(header::CACHE_CONTROL, "no-store")],
         super::HtmlTemplate(TrainsShowResponse {
@@ -107,6 +121,7 @@ async fn trains_show(Path(train_id): Path<String>) -> impl IntoResponse {
             train_id,
         }),
     )
+        .into_response()
 }
 
 pub fn routes() -> Routes {
@@ -116,4 +131,12 @@ pub fn routes() -> Routes {
         .add("/trains/:train_id", get(trains_show))
         .add("/star/:station_name", get(star_station))
         .add("/unstar/:station_name", get(unstar_station))
+}
+
+fn http404() -> axum::response::Response {
+    (
+        axum::http::StatusCode::NOT_FOUND,
+        super::HtmlTemplate(crate::views::Http404Template::default()),
+    )
+        .into_response()
 }

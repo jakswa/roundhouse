@@ -39,9 +39,10 @@ impl Hooks for App {
     fn connect_workers<'a>(_p: &'a mut Processor, _ctx: &'a AppContext) {}
 
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
-        Ok(vec![Box::new(
-            crate::initializers::assets::AssetsInitializer,
-        )])
+        Ok(vec![
+            Box::new(crate::initializers::assets::AssetsInitializer),
+            Box::new(crate::initializers::fallbacks::GlobalNotFound),
+        ])
     }
 
     fn register_tasks(_tasks: &mut Tasks) {}

@@ -33,8 +33,10 @@
   {# dynamically bg-blue-400 bg-green-400 bg-yellow-400 bg-red-400 #}
   {# dynamically border-blue-500 border-green-500 border-yellow-500 border-red-500 #}
 
+  {% block body %}
   <body hx-ext="morph" class="dark:bg-zinc-800 dark:text-zinc-50">
     {% block content %}
     {% endblock %}
   </body>
+  {% endblock %}
 </html>

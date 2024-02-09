@@ -1,7 +1,7 @@
 use cached::proc_macro::once;
 use serde::Deserialize;
 
-const STATIONS: [&str; 38] = [
+pub const STATIONS: [&str; 38] = [
     "airport",
     "arts center",
     "ashby",
