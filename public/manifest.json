@@ -6,7 +6,7 @@
       "src": "public/v001/favicon.png",
       "sizes": "260x260",
       "type": "image/png"
-    },
+    }
   ],
   "start_url": "/",
   "display": "minimal-ui",
