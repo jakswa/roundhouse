@@ -11,6 +11,12 @@
       "src": "public/static/tailicon512.webp",
       "sizes": "any",
       "type": "image/webp"
+    },
+    {
+      "src": "public/static/tailicon512.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "start_url": "/",
