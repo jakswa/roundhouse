@@ -3,9 +3,14 @@
   "name": "marta.io",
   "icons": [
     {
-      "src": "public/v001/favicon.png",
+      "src": "public/static/favicon.png",
       "sizes": "260x260",
       "type": "image/png"
+    },
+    {
+      "src": "public/static/tailicon512.webp",
+      "sizes": "any",
+      "type": "image/webp"
     }
   ],
   "start_url": "/",
