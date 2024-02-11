@@ -17,4 +17,4 @@ Cargo.lock
 
 # making this part of a build step, don't mix into git repo.
 # it changes a ton i bet.
-public/styles.css
+public/assets/styles.css

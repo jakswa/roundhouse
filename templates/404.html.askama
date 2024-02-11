@@ -1,7 +1,7 @@
 {% extends "layout.html.askama" %}
 
 {% block content %}
-<div class="bg-center min-h-screen text-neutral-100 text-center flex flex-col place-content-center" style="background-image: url('/public/static/not-found-{{variation}}.webp');">
+<div class="bg-center min-h-screen text-neutral-100 text-center flex flex-col place-content-center" style="background-image: url('/images/not-found-{{variation}}.webp');">
 	<h2 class="text-2xl pb-2 relative bottom-56 backdrop-brightness-75 backdrop-blur-3xl">
 		nothing here
 	</h2>

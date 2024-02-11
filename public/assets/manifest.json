@@ -3,17 +3,17 @@
   "name": "marta.io",
   "icons": [
     {
-      "src": "public/static/favicon.png",
+      "src": "/images/favicon.png",
       "sizes": "260x260",
       "type": "image/png"
     },
     {
-      "src": "public/static/tailicon512.webp",
+      "src": "/images/tailicon512.webp",
       "sizes": "any",
       "type": "image/webp"
     },
     {
-      "src": "public/static/tailicon512.png",
+      "src": "/images/tailicon512.png",
       "sizes": "any",
       "type": "image/png",
       "purpose": "maskable"

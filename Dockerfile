@@ -14,7 +14,8 @@ RUN  --mount=type=cache,target=/usr/src/target \
 FROM oven/bun:latest as bunbuilder
 WORKDIR /usr/src/app
 COPY . /usr/src/app
-RUN bun x tailwindcss -i public/tailwind.css --config public/tailwind.config.js -o public/styles.css;
+RUN bun x tailwindcss -i config/tailwind.css --config config/tailwind.config.js -o public/assets/styles.css;
+RUN gzip -r -k public/assets
 
 # combining into shipment
 FROM debian:bookworm-slim
