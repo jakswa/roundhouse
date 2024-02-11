@@ -18,7 +18,7 @@ impl Initializer for AssetsInitializer {
         let serve_dir = tower_http::services::ServeDir::new("public/assets").precompressed_gzip();
         let serve_images = tower_http::services::ServeDir::new("public/images");
         Ok(router
-            .layer(tower_http::compression::CompressionLayer::new())
+            .layer(tower_http::compression::CompressionLayer::new().no_br())
             // static things go after compression layer.
             // - pre-compressing css/js/etc on deploy
             // - images don't need compression usually
