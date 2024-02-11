@@ -53,9 +53,10 @@ async fn trains_station(
                 .collect::<Vec<String>>()
         })
         .unwrap_or(vec![]);
-    if !station_name
-        .rfind(' ')
-        .is_some_and(|ind| crate::services::marta::STATIONS.contains(&&station_name[0..ind]))
+    if !station_name.ends_with(" station")
+        || !station_name
+            .rfind(" station")
+            .is_some_and(|ind| crate::services::marta::STATIONS.contains(&&station_name[0..ind]))
     {
         return http404();
     }
