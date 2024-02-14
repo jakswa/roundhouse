@@ -5,25 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block pagetitle %}{% endblock %}marta.io</title>
     <meta name="description" content="{% block pagedesc %}atlanta marta train dashboard{% endblock %}" />
-	<link rel="manifest" href="/public/v000/manifest.json">
+    <link rel="manifest" href="/public/v000/manifest.json">
     <link rel="stylesheet" href="/public/v001/styles.css"></link>
 
     <link rel="icon" href="/images/favicon.png" />
     <link rel="apple-touch-icon" href="/images/favicon.png" />
 
     <!-- used for update-polling -->
-  	<script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
-  	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph.min.js"></script>
-  	<script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
+    <script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph.min.js"></script>
+    <script src="https://unpkg.com/idiomorph@0.3.0/dist/idiomorph-ext.min.js"></script>
 
-	<!-- temporary, clearing out service workers -->
-	<script type="text/javascript">
-	  navigator.serviceWorker.getRegistrations().then(function(registrations) {
-	    for(let registration of registrations) {
-	      registration.unregister();
-	    } 
-	  });
-	</script>
+    <!-- temporary, clearing out service workers -->
+    <script type="text/javascript">
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        } 
+      });
+    </script>
 
     {% block head %}{% endblock %}
   </head>
@@ -38,5 +38,8 @@
     {% block content %}
     {% endblock %}
   </body>
+  {% endblock %}
+
+  {% block bodybottom %}
   {% endblock %}
 </html>

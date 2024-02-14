@@ -2,25 +2,25 @@
 
 {% block content %}
 <div id="station-list" hx-get="/" hx-swap="morph" hx-trigger="every 10s">
-	<h1 class="border-b dark:border-zinc-600 text-xl font-bold px-2 py-4">Stations</h1>
+  <h1 class="border-b dark:border-zinc-600 text-xl font-bold px-2 py-4">Stations</h1>
 
-	<ul>
-	{% if !starred_stations.is_empty() %}
-		<li>
-			<div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">Starred Stations</div>
-			<ul>
-				{% for station in starred_stations %}
-					{% include "_station_with_pills.html.askama" %}
-				{% endfor %}
-			</ul>
-		</li>
-		<li>
-			<div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">All Stations</div>
-		</li>
-	{% endif %}
-	{% for station in stations %}
-		{% include "_station_with_pills.html.askama" %}
-	{% endfor %}
-	</ul>
+  <ul>
+  {% if !starred_stations.is_empty() %}
+    <li>
+      <div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">Starred Stations</div>
+      <ul>
+        {% for station in starred_stations %}
+          {% include "_station_with_pills.html.askama" %}
+        {% endfor %}
+      </ul>
+    </li>
+    <li>
+      <div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">All Stations</div>
+    </li>
+  {% endif %}
+  {% for station in stations %}
+    {% include "_station_with_pills.html.askama" %}
+  {% endfor %}
+  </ul>
 </div>
 {% endblock %}
