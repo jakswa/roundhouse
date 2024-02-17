@@ -5,9 +5,9 @@ ready(async function() {
   let geoPermissionState = await navigator.permissions
     .query({ name: 'geolocation' })
     .then((status) => status.state);
-  let gavePermission = geoPermissionState === 'granted';
+  let permissionUnblocked = geoPermissionState !== 'denied';
 
-  if (nearbyOn && gavePermission && !positionSet) attemptPosition();
+  if (nearbyOn && permissionUnblocked && !positionSet) attemptPosition();
 
   let ele = document.querySelector('#nearby-stations');
   document.addEventListener('click', (event) => {
