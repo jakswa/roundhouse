@@ -8,10 +8,7 @@ ready(async function() {
 
   if (nearbyOn && gavePermission && !positionSet) attemptPosition();
 
-
   let ele = document.querySelector('#nearby-stations');
-
-  if (geoPermissionState === 'denied') geoFeedback('denied', ele);
 
   ele.addEventListener('click', () => {
     if (nearbyOn) turnNearbyOff(ele)
