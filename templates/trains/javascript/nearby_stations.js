@@ -1,10 +1,11 @@
+let positionSet = document.cookie.indexOf('nearby_to') > -1;
+let nearbyOn = document.cookie.indexOf('nearby_on') > -1;
+
 ready(async function() {
   let geoPermissionState = await navigator.permissions
     .query({ name: 'geolocation' })
     .then((status) => status.state);
   let gavePermission = geoPermissionState === 'granted';
-  let positionSet = document.cookie.indexOf('nearby_to') > -1;
-  let nearbyOn = document.cookie.indexOf('nearby_on') > -1;
 
   if (nearbyOn && gavePermission && !positionSet) attemptPosition();
 
@@ -14,21 +15,21 @@ ready(async function() {
 
     if (nearbyOn) turnNearbyOff(ele)
     else {
-      noNearby = false;
+      nearbyOn = true;
       document.cookie = 'nearby_on=1;max-age=31536000';
-      attemptPosition(new Date());
+      attemptPosition();
       ele.classList.remove('opacity-50');
     }
   });
 });
 
 function turnNearbyOff(ele) {
-    document.cookie = 'nearby_to=; Max-Age=0';
-    document.cookie = 'nearby_on=; Max-Age=0';
-    positionSet = false;
-    noNearby = true;
-    ele.classList.add('opacity-50');
-    document.querySelector('#nearby-stations-list').innerHTML = '';
+  document.cookie = 'nearby_to=; Max-Age=0';
+  document.cookie = 'nearby_on=; Max-Age=0';
+  positionSet = false;
+  nearbyOn = false;
+  ele.classList.add('opacity-50');
+  document.querySelector('#nearby-stations-list').innerHTML = '';
 }
 
 function ready(fn) {
@@ -39,11 +40,11 @@ function ready(fn) {
   }
 }
 
-function attemptPosition(attemptedAt) {
+function attemptPosition() {
   navigator.geolocation.getCurrentPosition(
     (position) => {
       document.cookie = `nearby_to=${position.coords.latitude},${position.coords.longitude}`;
-      decideAJAX(new Date() - attemptedAt);
+      decideAJAX();
     },
     (err) => {
       let ele = document.querySelector('#nearby-stations')
@@ -64,7 +65,7 @@ function geoFeedback(msg, ele) {
   ele.appendChild(em);
 }
 
-function decideAJAX(_locationDelay) {
+function decideAJAX() {
   let ele = document.querySelector('#station-list');
   ele.setAttribute('hx-trigger', 'intersect once');
   ele.setAttribute('hx-get', '/');
