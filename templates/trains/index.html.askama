@@ -5,6 +5,19 @@
   <h1 class="border-b dark:border-zinc-600 text-xl font-bold px-2 py-4">Stations</h1>
 
   <ul>
+    <li>
+      <div id="nearby-stations" class="{% if !nearby_enabled %}opacity-50{% endif %} font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">
+        Nearby Stations
+        {% if nearby_stations.is_empty() && nearby_enabled %}
+          <em>(pending...)</em>
+        {% endif %}
+      </div>
+      <ul id="nearby-stations-list">
+        {% for station in nearby_stations %}
+          {% include "_station_with_pills.html.askama" %}
+        {% endfor %}
+      </ul>
+    </li>
   {% if !starred_stations.is_empty() %}
     <li>
       <div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">Starred Stations</div>
@@ -14,13 +27,19 @@
         {% endfor %}
       </ul>
     </li>
-    <li>
-      <div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">All Stations</div>
-    </li>
   {% endif %}
+  <li>
+    <div class="font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">All Stations</div>
+  </li>
   {% for station in stations %}
     {% include "_station_with_pills.html.askama" %}
   {% endfor %}
   </ul>
 </div>
+{% endblock %}
+
+{% block head %}
+<script type="text/javascript">
+  {% include "javascript/nearby_stations.js" %}
+</script>
 {% endblock %}

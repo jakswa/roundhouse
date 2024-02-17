@@ -1,6 +1,7 @@
 #![allow(clippy::unused_async)]
 use loco_rs::prelude::*;
 
+use crate::services::marta::{Station, STATIONS};
 use crate::views::trains::*;
 use axum::extract::Path;
 use axum::response::{IntoResponse, Redirect};
@@ -10,16 +11,8 @@ use http::header;
 
 async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
     let stations = crate::services::marta::arrivals_by_station().await;
-    let starred_station_names = cookies
-        .get("starred_stations")
-        .map(|cookie| {
-            cookie
-                .value()
-                .split(",")
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or(vec![]);
+
+    let starred_station_names = starred_station_names(&cookies);
     let starred_stations = stations
         .iter()
         .filter(|s| {
@@ -28,13 +21,15 @@ async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
                 .any(|ss| ss.starts_with(&s.name.to_ascii_uppercase()))
         })
         .map(|s| s.clone())
-        .collect::<Vec<crate::services::marta::Station>>();
+        .collect::<Vec<Station>>();
 
     (
         [(header::CACHE_CONTROL, "no-store")],
         super::HtmlTemplate(TrainsIndexResponse {
-            stations,
+            nearby_stations: nearby_stations(&cookies, &stations),
+            nearby_enabled: cookies.get("nearby_on").is_some(),
             starred_stations,
+            stations,
         }),
     )
 }
@@ -43,20 +38,11 @@ async fn trains_station(
     cookies: CookieJar,
     Path(station_name): Path<String>,
 ) -> axum::response::Response {
-    let starred_station_names = cookies
-        .get("starred_stations")
-        .map(|cookie| {
-            cookie
-                .value()
-                .split(",")
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or(vec![]);
+    let starred_station_names = starred_station_names(&cookies);
     if !station_name.ends_with(" station")
         || !station_name
             .rfind(" station")
-            .is_some_and(|ind| crate::services::marta::STATIONS.contains(&&station_name[0..ind]))
+            .is_some_and(|ind| STATIONS.into_iter().any(|i| i.0 == &station_name[0..ind]))
     {
         return http404();
     }
@@ -74,16 +60,7 @@ async fn trains_station(
 }
 
 async fn star_station(cookies: CookieJar, Path(station_name): Path<String>) -> impl IntoResponse {
-    let mut starred_station_names = cookies
-        .get("starred_stations")
-        .map(|cookie| {
-            cookie
-                .value()
-                .split(",")
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or(vec![]);
+    let mut starred_station_names = starred_station_names(&cookies);
     starred_station_names.push(station_name.to_ascii_uppercase());
     let mut cookie = Cookie::new("starred_stations", starred_station_names.join(","));
     cookie.set_path("/");
@@ -92,16 +69,7 @@ async fn star_station(cookies: CookieJar, Path(station_name): Path<String>) -> i
 }
 
 async fn unstar_station(cookies: CookieJar, Path(station_name): Path<String>) -> impl IntoResponse {
-    let mut starred_station_names = cookies
-        .get("starred_stations")
-        .map(|cookie| {
-            cookie
-                .value()
-                .split(",")
-                .map(|s| s.to_string())
-                .collect::<Vec<String>>()
-        })
-        .unwrap_or(vec![]);
+    let mut starred_station_names = starred_station_names(&cookies);
     starred_station_names = starred_station_names
         .into_iter()
         .filter(|s| s != &station_name.to_ascii_uppercase())
@@ -140,4 +108,47 @@ fn http404() -> axum::response::Response {
         super::HtmlTemplate(crate::views::Http404Template::default()),
     )
         .into_response()
+}
+
+fn starred_station_names(cookies: &CookieJar) -> Vec<String> {
+    cookies
+        .get("starred_stations")
+        .map(|cookie| {
+            cookie
+                .value()
+                .split(",")
+                .map(|s| s.to_string())
+                .collect::<Vec<String>>()
+        })
+        .unwrap_or(vec![])
+}
+
+fn nearby_stations(cookies: &CookieJar, stations: &Vec<Station>) -> Vec<Station> {
+    cookies
+        .get("nearby_to")
+        .map(|cookie| cookie.value().split_once(","))
+        .flatten()
+        .map(|(lat, lon)| (lat.parse::<f64>().unwrap(), lon.parse::<f64>().unwrap()))
+        .map(|pos| closest_stations(pos, stations))
+        .unwrap_or(vec![])
+}
+
+fn closest_stations(pos: (f64, f64), stations: &Vec<Station>) -> Vec<Station> {
+    let mut station_coords: Vec<&(&str, f64, f64)> = STATIONS.iter().collect();
+    station_coords.sort_by(|s1, s2| {
+        let v1 = (s1.1 - pos.0).abs() + (s1.2 - pos.1).abs();
+        let v2 = (s2.1 - pos.0).abs() + (s2.2 - pos.1).abs();
+        v1.total_cmp(&v2)
+    });
+    station_coords
+        .iter()
+        .take(3)
+        .map(|s| {
+            stations
+                .iter()
+                .find(|stat| stat.name == s.0)
+                .unwrap()
+                .clone()
+        })
+        .collect()
 }

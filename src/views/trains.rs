@@ -5,6 +5,8 @@ use askama::Template;
 pub struct TrainsIndexResponse {
     pub stations: Vec<crate::services::marta::Station>,
     pub starred_stations: Vec<crate::services::marta::Station>,
+    pub nearby_stations: Vec<crate::services::marta::Station>,
+    pub nearby_enabled: bool,
 }
 
 #[derive(Template)]

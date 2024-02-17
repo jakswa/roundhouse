@@ -1,45 +1,47 @@
 use cached::proc_macro::once;
 use serde::Deserialize;
 
-pub const STATIONS: [&str; 38] = [
-    "airport",
-    "arts center",
-    "ashby",
-    "avondale",
-    "bankhead",
-    "brookhaven",
-    "buckhead",
-    "chamblee",
-    "civic center",
-    "college park",
-    "decatur",
-    "doraville",
-    "dunwoody",
-    "east lake",
-    "east point",
-    "edgewood candler park",
-    "five points",
-    "garnett",
-    "georgia state",
-    "hamilton e holmes",
-    "indian creek",
-    "inman park",
-    "kensington",
-    "king memorial",
-    "lakewood",
-    "lenox",
-    "lindbergh",
-    "medical center",
-    "midtown",
-    "north ave",
-    "north springs",
-    "oakland city",
-    "omni dome",
-    "peachtree center",
-    "sandy springs",
-    "vine city",
-    "west end",
-    "west lake",
+// stations with their approximate location.
+// could also get lat/long from the GTFS CSVs one day.
+pub const STATIONS: [(&str, f64, f64); 38] = [
+    ("airport", 33.639975, -84.44403199999999),
+    ("arts center", 33.789283, -84.387125),
+    ("ashby", 33.756289, -84.41755599999999),
+    ("avondale", 33.77533, -84.280715),
+    ("bankhead", 33.772979, -84.428537),
+    ("brookhaven", 33.859928, -84.33922),
+    ("buckhead", 33.847874, -84.367296),
+    ("chamblee", 33.8879695, -84.30468049999999),
+    ("civic center", 33.766245, -84.38750399999999),
+    ("college park", 33.6513813, -84.4470162),
+    ("decatur", 33.774455, -84.297131),
+    ("doraville", 33.9026881, -84.28025099999999),
+    ("dunwoody", 33.9486029, -84.355848),
+    ("east lake", 33.765062, -84.31261099999999),
+    ("east point", 33.676609, -84.440595),
+    ("edgewood candler park", 33.761812, -84.340064),
+    ("five points", 33.754061, -84.391539),
+    ("garnett", 33.748938, -84.395513),
+    ("georgia state", 33.749732, -84.38569700000001),
+    ("hamilton e holmes", 33.7545107, -84.4722046),
+    ("indian creek", 33.769212, -84.229255),
+    ("inman park", 33.757317, -84.35262),
+    ("kensington", 33.772093, -84.252217),
+    ("king memorial", 33.749468, -84.37601099999999),
+    ("lakewood", 33.700649, -84.429541),
+    ("lenox", 33.845137, -84.357854),
+    ("lindbergh", 33.823698, -84.369248),
+    ("medical center", 33.9106263, -84.3513751),
+    ("midtown", 33.780737, -84.386657),
+    ("north ave", 33.771696, -84.387411),
+    ("north springs", 33.94495, -84.275673),
+    ("oakland city", 33.71726400000001, -84.42527899999999),
+    ("omni dome", 33.7489954, -84.3879824),
+    ("peachtree center", 33.759532, -84.387564),
+    ("sandy springs", 33.9321044, -84.3513524),
+    ("vine city", 33.756612, -84.404348),
+    ("west end", 33.73584, -84.412967),
+    ("west lake", 33.7533436, -84.4475581),
 ];
 
 #[derive(Deserialize, Clone)]
@@ -147,7 +149,7 @@ pub async fn arrivals_by_station() -> Vec<Station> {
         }
     });
 
-    let mut stations = STATIONS.into_iter();
+    let mut stations = STATIONS.into_iter().map(|i| i.0);
     let mut curr_station = stations.next().unwrap();
 
     for arrival in arrivals.drain(..) {
