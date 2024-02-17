@@ -9,8 +9,9 @@ ready(async function() {
   if (nearbyOn && gavePermission && !positionSet) attemptPosition();
 
   let ele = document.querySelector('#nearby-stations');
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('#nearby-stations')) return;
 
-  ele.addEventListener('click', () => {
     if (nearbyOn) turnNearbyOff(ele)
     else {
       noNearby = false;
