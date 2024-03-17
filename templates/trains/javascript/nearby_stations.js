@@ -19,6 +19,7 @@ ready(async function() {
       document.cookie = 'nearby_on=1;max-age=31536000';
       attemptPosition();
       ele.classList.remove('opacity-50');
+      ele.querySelector('.handle').classList.add('translate-x-[100%]');
     }
   });
 });
@@ -29,6 +30,7 @@ function turnNearbyOff(ele) {
   positionSet = false;
   nearbyOn = false;
   ele.classList.add('opacity-50');
+  ele.querySelector('.handle').classList.remove('translate-x-[100%]');
   document.querySelector('#nearby-stations-list').innerHTML = '';
 }
 

@@ -6,7 +6,10 @@
 
   <ul>
     <li>
-      <div id="nearby-stations" class="{% if !nearby_enabled %}opacity-50{% endif %} font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">
+      <div id="nearby-stations" class="flex flex-row items-center cursor-pointer {% if !nearby_enabled %}opacity-50{% endif %} font-bold text-zinc-600 dark:text-zinc-200 bg-zinc-100 dark:bg-neutral-900 px-4 py-3">
+        <div class="relative mr-2 w-8 h-4 bg-gray-400 rounded-full shadow-inner">
+          <div class="handle absolute inset-0 w-4 h-4 bg-white rounded-full shadow transition-transform transition-color transform {% if nearby_enabled %}translate-x-[100%]{% endif %}"></div>
+        </div>
         Nearby Stations
         {% if nearby_stations.is_empty() && nearby_enabled %}
           <em>(pending...)</em>
