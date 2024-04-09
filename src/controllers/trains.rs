@@ -136,8 +136,8 @@ fn nearby_stations(cookies: &CookieJar, stations: &Vec<Station>) -> Vec<Station>
 fn closest_stations(pos: (f64, f64), stations: &Vec<Station>) -> Vec<Station> {
     let mut station_coords: Vec<&(&str, f64, f64)> = STATIONS.iter().collect();
     station_coords.sort_by(|s1, s2| {
-        let v1 = (s1.1 - pos.0).abs() + (s1.2 - pos.1).abs();
-        let v2 = (s2.1 - pos.0).abs() + (s2.2 - pos.1).abs();
+        let v1 = (s1.1 - pos.0).powi(2) + (s1.2 - pos.1).powi(2);
+        let v2 = (s2.1 - pos.0).powi(2) + (s2.2 - pos.1).powi(2);
         v1.total_cmp(&v2)
     });
     station_coords
