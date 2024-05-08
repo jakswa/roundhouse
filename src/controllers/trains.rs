@@ -3,11 +3,12 @@ use loco_rs::prelude::*;
 
 use crate::services::marta::{Station, STATIONS};
 use crate::views::trains::*;
-use axum::extract::Path;
+use axum::extract::{Path, Query};
 use axum::response::{IntoResponse, Redirect};
 
 use axum_extra::extract::cookie::{Cookie, CookieJar};
 use http::header;
+use serde::Deserialize;
 
 async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
     let stations = crate::services::marta::arrivals_by_station().await;
@@ -34,9 +35,14 @@ async fn trains_index(cookies: CookieJar) -> impl IntoResponse {
     )
 }
 
+#[derive(Deserialize)]
+struct StationOptions {
+    from: Option<String>,
+}
 async fn trains_station(
     cookies: CookieJar,
     Path(station_name): Path<String>,
+    query: Query<StationOptions>,
 ) -> axum::response::Response {
     let starred_station_names = starred_station_names(&cookies);
     if !station_name.ends_with(" station")
@@ -48,12 +54,14 @@ async fn trains_station(
     }
     let upcase_station = station_name.to_ascii_uppercase();
     let arrivals = crate::services::marta::single_station_arrivals(&station_name).await;
+    let train_id = query.0.from.unwrap_or_else(|| String::new());
     (
         [(header::CACHE_CONTROL, "no-store")],
         super::HtmlTemplate(TrainsStationResponse {
             arrivals,
             station_name,
             is_starred: starred_station_names.contains(&upcase_station),
+            train_id,
         }),
     )
         .into_response()

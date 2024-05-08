@@ -1,7 +1,7 @@
 {% extends "layout.html.askama" %}
 
 {% block content %}
-<div id="station-view" hx-get="/stations/{{station_name}}" hx-swap="morph" hx-trigger="every 10s">
+<div id="station-view" hx-get="/stations/{{station_name}}?from={{train_id}}" hx-swap="morph" hx-trigger="every 10s">
   <h1 class="border-b dark:border-zinc-600 text-xl font-bold px-2 py-4 capitalize">
     {% if is_starred %}
     <span class="mb-2 mr-2 ">
@@ -28,7 +28,7 @@
   {% endif %}
   {% for arrival in arrivals %}
     <li>
-      <a href="/trains/{{arrival.train_id}}" class="{% include "_list_link_style.html.askama" %}">
+      <a href="/trains/{{arrival.train_id}}" class="{% include "_list_link_style.html.askama" %} {%if arrival.train_id == train_id %}bg-green-300{% endif %}">
         <div class="flex flex-wrap justify-end gap-2 gap-y-4">
           <div class="flex">
             <span class="font-mono border-r {{arrival.train_color()}} dark:text-zinc-800 text-white font-black text-xl rounded-l-full p-2 pl-4">{{ arrival.direction }}</span>
