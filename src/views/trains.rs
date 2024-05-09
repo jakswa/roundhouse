@@ -15,6 +15,7 @@ pub struct TrainsStationResponse {
     pub station_name: String,
     pub arrivals: Vec<crate::services::marta::TrainArrival>,
     pub is_starred: bool,
+    pub train_id: String,
 }
 
 #[derive(Template)]
