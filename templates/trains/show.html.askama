@@ -9,7 +9,7 @@
       <ul class="p-4 text-right">
         {% for arrival in arrivals %}
           <li class="capitalize my-6">
-            <a href="/stations/{{arrival.url_name()}} station?from={{train_id}}">{{arrival.station}}</a>
+            <a href="/stations/{{arrival.url_name()}}%20station?from={{train_id}}">{{arrival.ui_station_name()}}</a>
           </li>
         {% endfor %}
       </ul>

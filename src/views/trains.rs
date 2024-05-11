@@ -13,8 +13,7 @@ pub struct TrainsIndexResponse {
 #[derive(Template)]
 #[template(path = "trains/station.html.askama", escape = "html")]
 pub struct TrainsStationResponse {
-    pub station_name: String,
-    pub arrivals: Vec<Arc<crate::services::marta::TrainArrival>>,
+    pub station_with_arrivals: crate::services::marta::Station,
     pub is_starred: bool,
     pub train_id: String,
 }

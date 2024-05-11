@@ -56,11 +56,14 @@ async fn trains_station(
     let upcase_station = station_name.to_ascii_uppercase();
     let arrivals = crate::services::marta::single_station_arrivals(station).await;
     let train_id = query.0.from.unwrap_or_else(|| String::new());
+    let station_with_arrivals = Station {
+        arrivals,
+        name: station.to_string(),
+    };
     (
         [(header::CACHE_CONTROL, "no-store")],
         super::HtmlTemplate(TrainsStationResponse {
-            arrivals,
-            station_name,
+            station_with_arrivals,
             is_starred: starred_station_names.contains(&upcase_station),
             train_id,
         }),

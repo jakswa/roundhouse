@@ -1,32 +1,32 @@
 {% extends "layout.html.askama" %}
 
 {% block content %}
-<div id="station-view" hx-get="/stations/{{station_name}}?from={{train_id}}" hx-swap="morph" hx-trigger="every 10s">
+<div id="station-view" hx-get="/stations/{{station_with_arrivals.url_name()}}%20Station?from={{train_id}}" hx-swap="morph" hx-trigger="every 10s">
   <h1 class="border-b dark:border-zinc-600 text-xl font-bold px-2 py-4 capitalize">
     {% if is_starred %}
     <span class="mb-2 mr-2 ">
       {% include "_star_icon.html.askama" %}
     </span>
     {% endif %}
-    {{station_name}}
+    {{station_with_arrivals.ui_station_name()}} Station
     {% if is_starred %}
-      <a href="/unstar/{{station_name}}" class="ml-2 p-1 pb-2 rounded bg-indigo-600">
+      <a href="/unstar/{{station_with_arrivals.url_name()}}%20Station" class="ml-2 p-1 pb-2 rounded bg-indigo-600">
         {% include "_star_off_icon.html.askama" %}
       </a>
     {% else %}
-      <a href="/star/{{station_name}}" class="ml-2 p-1 pb-2 rounded bg-indigo-600">
+      <a href="/star/{{station_with_arrivals.url_name()}}%20Station" class="ml-2 p-1 pb-2 rounded bg-indigo-600">
         {% include "_star_icon.html.askama" %}
       </a>
     {% endif %}
   </h1>
 
   <ul>
-  {% if arrivals.is_empty() %}
+  {% if station_with_arrivals.arrivals.is_empty() %}
     <li class="{% include "_list_link_style.html.askama" %}">
       No data
     </li>
   {% endif %}
-  {% for arrival in arrivals %}
+  {% for arrival in station_with_arrivals.arrivals %}
     <li>
       <a href="/trains/{{arrival.train_id}}" class="{% include "_list_link_style.html.askama" %} {%if arrival.train_id == train_id %}bg-green-300{% endif %}">
         <div class="flex flex-wrap justify-end gap-2 gap-y-4">
