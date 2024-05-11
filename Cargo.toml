@@ -28,6 +28,7 @@ tower = "0.4.13"
 http = "1.0.0"
 cookie = "0.18.0"
 fastrand = "2.0.1"
+url = "2.5.0"
 
 [[bin]]
 name = "roundhouse-cli"

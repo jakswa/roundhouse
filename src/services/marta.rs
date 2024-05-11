@@ -1,6 +1,28 @@
 use cached::proc_macro::once;
 use serde::Deserialize;
+use std::sync::Arc;
 
+fn encode_uri_component(input: &str) -> String {
+    let mut encoded = String::new();
+    for byte in input.bytes() {
+        match byte {
+            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
+                encoded.push(byte as char);
+            }
+            _ => {
+                encoded.push_str(&format!("%{:02X}", byte));
+            }
+        }
+    }
+    encoded
+}
+
+pub fn ui_name_overrides(name: &str) -> &str {
+    match name {
+        "gwcc/cnn center" => "GWCC/CNN Center",
+        _ => name,
+    }
+}
 // stations with their approximate location.
 // could also get lat/long from the GTFS CSVs one day.
 pub const STATIONS: [(&str, f64, f64); 38] = [
@@ -23,6 +45,7 @@ pub const STATIONS: [(&str, f64, f64); 38] = [
     ("five points", 33.754061, -84.391539),
     ("garnett", 33.748938, -84.395513),
     ("georgia state", 33.749732, -84.38569700000001),
+    ("gwcc/cnn center", 33.7489954, -84.3879824),
     ("hamilton e holmes", 33.7545107, -84.4722046),
     ("indian creek", 33.769212, -84.229255),
     ("inman park", 33.757317, -84.35262),
@@ -36,7 +59,6 @@ pub const STATIONS: [(&str, f64, f64); 38] = [
     ("north ave", 33.771696, -84.387411),
     ("north springs", 33.9452199, -84.3572593),
     ("oakland city", 33.71726400000001, -84.42527899999999),
-    ("omni dome", 33.7489954, -84.3879824),
     ("peachtree center", 33.759532, -84.387564),
     ("sandy springs", 33.9321044, -84.3513524),
     ("vine city", 33.756612, -84.404348),
@@ -44,7 +66,7 @@ pub const STATIONS: [(&str, f64, f64); 38] = [
     ("west lake", 33.7533436, -84.4475581),
 ];
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct TrainArrival {
     pub destination: String,
@@ -59,8 +81,23 @@ pub struct TrainArrival {
 }
 
 impl TrainArrival {
+    pub fn mutate(&mut self) {
+        if self.station == "OMNI DOME STATION" {
+            self.station = "gwcc/cnn center".to_string();
+        } else {
+            self.station = self.station[0..(self.station.len() - 8)].to_ascii_lowercase();
+        }
+    }
     pub fn is_arriving(&self) -> bool {
         self.waiting_time == "Arriving"
+    }
+
+    pub fn ui_station_name(&self) -> &str {
+        ui_name_overrides(&self.station)
+    }
+
+    pub fn url_name(&self) -> String {
+        encode_uri_component(&self.station)
     }
 
     pub fn wait_min(&self) -> String {
@@ -77,11 +114,6 @@ impl TrainArrival {
             _ => "violet-700",
         }
     }
-    // station fields all end with " STATION" -- kinda redundant huh
-    pub fn station_name(&self) -> String {
-        let rind = self.station.rfind(' ').unwrap_or(self.station.len());
-        self.station[0..rind].to_lowercase()
-    }
 
     pub fn is_destination(&self) -> bool {
         self.station
@@ -94,12 +126,22 @@ impl TrainArrival {
 #[derive(Clone)]
 pub struct Station {
     pub name: String,
-    pub arrivals: Vec<TrainArrival>,
+    pub arrivals: Vec<Arc<TrainArrival>>,
+}
+
+impl Station {
+    pub fn ui_station_name(&self) -> &str {
+        ui_name_overrides(&self.name)
+    }
+
+    pub fn url_name(&self) -> String {
+        encode_uri_component(&self.name)
+    }
 }
 
 #[once(time = 10, result = true, sync_writes = true)]
-pub async fn arrivals() -> Result<Vec<TrainArrival>, reqwest::Error> {
-    reqwest::Client::builder()
+pub async fn arrivals() -> Result<Vec<Arc<TrainArrival>>, reqwest::Error> {
+    let arrs: Result<Vec<TrainArrival>, reqwest::Error> = reqwest::Client::builder()
         // ugh always have SSL probs with itsmarta.com
         .danger_accept_invalid_certs(true)
         .build()
@@ -108,23 +150,31 @@ pub async fn arrivals() -> Result<Vec<TrainArrival>, reqwest::Error> {
         .send()
         .await?
         .json()
-        .await
+        .await;
+
+    arrs.map(|arrv| {
+        arrv.into_iter()
+            .map(|mut arr| {
+                arr.mutate();
+                Arc::new(arr)
+            })
+            .collect::<Vec<Arc<TrainArrival>>>()
+    })
 }
 
-pub async fn single_station_arrivals(station_name: &String) -> Vec<TrainArrival> {
-    let upper_station = station_name.to_ascii_uppercase();
-    let mut list: Vec<TrainArrival> = arrivals()
+pub async fn single_station_arrivals(station_name: &str) -> Vec<Arc<TrainArrival>> {
+    let mut list: Vec<Arc<TrainArrival>> = arrivals()
         .await
         .unwrap_or(vec![])
         .into_iter()
-        .filter(|arr| arr.station == upper_station)
+        .filter(|arr| arr.station == station_name)
         .collect();
     list.sort_by_key(|arr| arr.waiting_seconds.parse::<i64>().unwrap());
     list
 }
 
-pub async fn single_train_arrivals(train_id: &String) -> Vec<TrainArrival> {
-    let mut list: Vec<TrainArrival> = arrivals()
+pub async fn single_train_arrivals(train_id: &String) -> Vec<Arc<TrainArrival>> {
+    let mut list: Vec<Arc<TrainArrival>> = arrivals()
         .await
         .unwrap_or(vec![])
         .into_iter()
@@ -136,7 +186,7 @@ pub async fn single_train_arrivals(train_id: &String) -> Vec<TrainArrival> {
 
 pub async fn arrivals_by_station() -> Vec<Station> {
     let mut res: Vec<Station> = vec![];
-    let mut vec: Vec<TrainArrival> = vec![];
+    let mut vec: Vec<Arc<TrainArrival>> = vec![];
     let mut arrivals = arrivals().await.unwrap();
     arrivals.sort_by(|a, b| {
         if a.station == b.station {
@@ -153,8 +203,7 @@ pub async fn arrivals_by_station() -> Vec<Station> {
     let mut curr_station = stations.next().unwrap();
 
     for arrival in arrivals.drain(..) {
-        let arrival_station = arrival.station_name();
-        if curr_station == arrival_station {
+        if curr_station == arrival.station {
             if !vec.iter().any(|arr| arrival.direction == arr.direction) {
                 vec.push(arrival.clone());
             }
@@ -173,7 +222,7 @@ pub async fn arrivals_by_station() -> Vec<Station> {
                     name: curr_station.to_string(),
                 });
                 curr_station = stations.next().unwrap();
-                if curr_station == arrival_station {
+                if curr_station == arrival.station {
                     break;
                 }
                 vec = vec![];

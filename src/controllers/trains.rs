@@ -52,8 +52,9 @@ async fn trains_station(
     {
         return http404();
     }
+    let station = &station_name[0..station_name.rfind(" station").unwrap()];
     let upcase_station = station_name.to_ascii_uppercase();
-    let arrivals = crate::services::marta::single_station_arrivals(&station_name).await;
+    let arrivals = crate::services::marta::single_station_arrivals(station).await;
     let train_id = query.0.from.unwrap_or_else(|| String::new());
     (
         [(header::CACHE_CONTROL, "no-store")],
