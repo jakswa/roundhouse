@@ -29,6 +29,7 @@ http = "1.0.0"
 cookie = "0.18.0"
 fastrand = "2.0.1"
 url = "2.5.0"
+serde_with = "3.8.1"
 
 [[bin]]
 name = "roundhouse-cli"

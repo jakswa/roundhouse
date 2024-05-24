@@ -1,5 +1,7 @@
 use cached::proc_macro::once;
 use serde::Deserialize;
+use serde_with::{serde_as, DisplayFromStr};
+use std::collections::HashMap;
 use std::sync::Arc;
 
 fn encode_uri_component(input: &str) -> String {
@@ -67,6 +69,7 @@ pub const STATIONS: [(&str, f64, f64); 38] = [
     ("west lake", 33.7533436, -84.4475581),
 ];
 
+#[serde_as]
 #[derive(Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub struct TrainArrival {
@@ -77,7 +80,8 @@ pub struct TrainArrival {
     pub next_arr: String,
     pub station: String,
     pub train_id: String,
-    pub waiting_seconds: String,
+    #[serde_as(as = "DisplayFromStr")]
+    pub waiting_seconds: i64,
     pub waiting_time: String,
 }
 
@@ -106,8 +110,7 @@ impl TrainArrival {
     }
 
     pub fn wait_min(&self) -> String {
-        let secs = self.waiting_seconds.parse::<i64>().unwrap();
-        format!(":{:02}", secs / 60)
+        format!(":{:02}", self.waiting_seconds / 60)
     }
 
     pub fn train_color(&self) -> &str {
@@ -144,8 +147,11 @@ impl Station {
     }
 }
 
+type TrainStore = HashMap<String, Vec<Arc<TrainArrival>>>;
+type ReadOnlyTrains = Arc<TrainStore>;
+
 #[once(time = 10, result = true, sync_writes = true)]
-pub async fn arrivals() -> Result<Vec<Arc<TrainArrival>>, reqwest::Error> {
+pub async fn arrivals() -> Result<ReadOnlyTrains, reqwest::Error> {
     let arrs: Result<Vec<TrainArrival>, reqwest::Error> = reqwest::Client::builder()
         // ugh always have SSL probs with itsmarta.com
         .danger_accept_invalid_certs(true)
@@ -157,95 +163,68 @@ pub async fn arrivals() -> Result<Vec<Arc<TrainArrival>>, reqwest::Error> {
         .json()
         .await;
 
-    arrs.map(|arrv| {
-        arrv.into_iter()
-            .map(|mut arr| {
-                arr.mutate();
-                Arc::new(arr)
-            })
-            .collect::<Vec<Arc<TrainArrival>>>()
-    })
+    let mut hash: TrainStore = HashMap::new();
+    if let Ok(arrv) = arrs {
+        arrv.into_iter().for_each(|mut arr| {
+            arr.mutate();
+            hash.entry(arr.station.clone())
+                .or_default()
+                .push(Arc::new(arr));
+        })
+    }
+    hash.values_mut()
+        .for_each(|group| group.sort_by_key(|arr| arr.waiting_seconds));
+    Ok(Arc::new(hash))
+}
+
+pub async fn arrivals_or_blank() -> ReadOnlyTrains {
+    arrivals()
+        .await
+        .unwrap_or_else(|_| Arc::new(HashMap::new()))
 }
 
 pub async fn single_station_arrivals(station_name: &str) -> Vec<Arc<TrainArrival>> {
-    let mut list: Vec<Arc<TrainArrival>> = arrivals()
+    arrivals_or_blank()
         .await
-        .unwrap_or(vec![])
-        .into_iter()
-        .filter(|arr| arr.station == station_name)
-        .collect();
-    list.sort_by_key(|arr| arr.waiting_seconds.parse::<i64>().unwrap());
-    list
+        .get(station_name)
+        .unwrap_or(&vec![])
+        .clone()
 }
 
 pub async fn single_train_arrivals(train_id: &String) -> Vec<Arc<TrainArrival>> {
-    let mut list: Vec<Arc<TrainArrival>> = arrivals()
+    let mut list: Vec<Arc<TrainArrival>> = arrivals_or_blank()
         .await
-        .unwrap_or(vec![])
-        .into_iter()
+        .values()
+        .flatten()
         .filter(|arr| &arr.train_id == train_id)
+        .map(|i| i.clone())
         .collect();
-    list.sort_by_key(|arr| arr.waiting_seconds.parse::<i64>().unwrap());
+    list.sort_by_key(|arr| arr.waiting_seconds);
     list
 }
 
 pub async fn arrivals_by_station() -> Vec<Station> {
     let mut res: Vec<Station> = vec![];
-    let mut vec: Vec<Arc<TrainArrival>> = vec![];
-    let mut arrivals = arrivals().await.unwrap();
-    arrivals.sort_by(|a, b| {
-        if a.station == b.station {
-            a.waiting_seconds
-                .parse::<i64>()
-                .unwrap()
-                .cmp(&b.waiting_seconds.parse::<i64>().unwrap())
-        } else {
-            a.station.cmp(&b.station)
-        }
-    });
+    let arrivals = arrivals_or_blank().await;
+    let stations = STATIONS.into_iter().map(|i| i.0);
 
-    let mut stations = STATIONS.into_iter().map(|i| i.0);
-    let mut curr_station = stations.next().unwrap();
-
-    for arrival in arrivals.drain(..) {
-        if curr_station == arrival.station {
+    for station in stations {
+        let mut vec: Vec<Arc<TrainArrival>> = vec![];
+        for arrival in arrivals.get(station).unwrap_or(&vec![]) {
             if !vec.iter().any(|arr| arrival.direction == arr.direction) {
                 vec.push(arrival.clone());
             }
-        } else {
-            // show arrivals for the station in consistent order
-            vec.sort_by_key(|arr| match arr.direction.as_ref() {
-                "N" => 0,
-                "S" => 1,
-                "E" => 2,
-                _w => 3,
-            });
-            loop {
-                // cycle/add stations until we find next
-                res.push(Station {
-                    arrivals: vec,
-                    name: curr_station.to_string(),
-                });
-                curr_station = stations.next().unwrap();
-                if curr_station == arrival.station {
-                    break;
-                }
-                vec = vec![];
-            }
-            vec = vec![arrival.clone()];
         }
-    }
-    loop {
-        // cycle/add stations until no more stations.
+        vec.sort_by_key(|arr| match arr.direction.as_ref() {
+            "N" => 0,
+            "S" => 1,
+            "E" => 2,
+            _w => 3,
+        });
         res.push(Station {
             arrivals: vec,
-            name: curr_station.to_string(),
+            name: station.to_string(),
         });
-        match stations.next() {
-            None => break,
-            Some(next_station) => curr_station = next_station,
-        }
-        vec = vec![];
     }
     res
 }
