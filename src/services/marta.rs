@@ -17,6 +17,7 @@ fn encode_uri_component(input: &str) -> String {
     encoded
 }
 
+// because CSS capitalizing just does the first letter >_<
 pub fn ui_name_overrides(name: &str) -> &str {
     match name {
         "gwcc/cnn center" => "GWCC/CNN Center",
@@ -81,13 +82,17 @@ pub struct TrainArrival {
 }
 
 impl TrainArrival {
+    // intending to be the spot where we do any overriding/modification of MARTA's response,
+    // before we store this in the cache for reuse
     pub fn mutate(&mut self) {
+        // lowercase, remove " STATION", and update "omni dome" since it is so old
         if self.station == "OMNI DOME STATION" {
             self.station = "gwcc/cnn center".to_string();
         } else {
             self.station = self.station[0..(self.station.len() - 8)].to_ascii_lowercase();
         }
     }
+
     pub fn is_arriving(&self) -> bool {
         self.waiting_time == "Arriving"
     }

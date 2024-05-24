@@ -70,7 +70,7 @@ function geoFeedback(msg, ele) {
 function decideAJAX() {
   let ele = document.querySelector('#station-list');
   ele.setAttribute('hx-trigger', 'intersect once');
-  ele.setAttribute('hx-get', '/');
+  ele.setAttribute('hx-get', ''); // blank url means "fetch current url"
   ele.setAttribute('hx-swap', 'morph');
   htmx.process(ele);
 }
