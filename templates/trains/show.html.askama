@@ -8,7 +8,7 @@
     <div class="flex justify-end border-r-2 border-black dark:border-white">
       <ul class="p-4 text-right">
         {% for arrival in arrivals %}
-          <li class="capitalize my-6">
+          <li class="capitalize my-6 underline active:text-sky-500">
             <a href="/stations/{{arrival.url_name()}}%20station?from={{train_id}}">{{arrival.ui_station_name()}}</a>
           </li>
         {% endfor %}
