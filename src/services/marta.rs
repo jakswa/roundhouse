@@ -152,12 +152,18 @@ type ReadOnlyTrains = Arc<TrainStore>;
 
 #[once(time = 10, result = true, sync_writes = true)]
 pub async fn arrivals() -> Result<ReadOnlyTrains, reqwest::Error> {
+    let api_key = std::env::var("MARTA_TRAIN_KEY").expect("we need API KEY now!");
+    let url = format!(
+        "https://developerservices.itsmarta.com:18096/itsmarta/
+railrealtimearrivals/traindata?apiKey={}",
+        api_key
+    );
     let arrs: Result<Vec<TrainArrival>, reqwest::Error> = reqwest::Client::builder()
         // ugh always have SSL probs with itsmarta.com
         .danger_accept_invalid_certs(true)
         .build()
         .unwrap()
-        .get("http://developer.itsmarta.com/RealtimeTrain/RestServiceNextTrain/GetRealtimeArrivals")
+        .get(url)
         .send()
         .await?
         .json()
