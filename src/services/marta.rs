@@ -81,6 +81,8 @@ pub struct TrainArrival {
     pub station: String,
     pub train_id: String,
     #[serde_as(as = "DisplayFromStr")]
+    pub is_realtime: bool,
+    #[serde_as(as = "DisplayFromStr")]
     pub waiting_seconds: i64,
     pub waiting_time: String,
 }

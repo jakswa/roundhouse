@@ -55,7 +55,7 @@ async fn trains_station(
     let station = &station_name[0..station_name.rfind(" station").unwrap()];
     let upcase_station = station_name.to_ascii_uppercase();
     let arrivals = crate::services::marta::single_station_arrivals(station).await;
-    let train_id = query.0.from.unwrap_or_else(|| String::new());
+    let train_id = query.0.from.unwrap_or_else(|| "-1111".to_string());
     let station_with_arrivals = Station {
         arrivals,
         name: station.to_string(),
