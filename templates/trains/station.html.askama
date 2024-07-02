@@ -1,7 +1,7 @@
 {% extends "layout.html.askama" %}
 
 {% block content %}
-<div id="station-view" hx-get hx-swap="morph" hx-trigger="every 10s">
+<div id="station-view" hx-get hx-swap="morph" hx-trigger="every 10.5s">
   <h1 class="truncate border-b dark:border-zinc-600 text-xl font-bold px-4 py-4 capitalize">
     {% if is_starred %}
       <a href="/unstar/{{station_with_arrivals.url_name()}}%20Station" class="mr-2 p-1 pb-2 rounded bg-indigo-600 text-white">{% include "_star_off_icon.html.askama" %}</a>
