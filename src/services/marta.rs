@@ -81,6 +81,10 @@ pub struct TrainArrival {
     pub station: String,
     pub train_id: String,
     #[serde_as(as = "DisplayFromStr")]
+    pub is_first_stop: bool,
+    #[serde_as(as = "DisplayFromStr")]
+    pub has_started_trip: bool,
+    #[serde_as(as = "DisplayFromStr")]
     pub is_realtime: bool,
     #[serde_as(as = "DisplayFromStr")]
     pub waiting_seconds: i64,
@@ -88,6 +92,9 @@ pub struct TrainArrival {
 }
 
 impl TrainArrival {
+    pub fn paused_at_start(&self) -> bool {
+        self.is_first_stop && self.is_realtime && !self.has_started_trip
+    }
     // intending to be the spot where we do any overriding/modification of MARTA's response,
     // before we store this in the cache for reuse
     pub fn mutate(&mut self) {
