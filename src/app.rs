@@ -10,6 +10,7 @@ use loco_rs::{
 };
 
 use crate::controllers;
+use crate::tasks;
 
 pub struct App;
 #[async_trait]
@@ -39,10 +40,11 @@ impl Hooks for App {
     fn connect_workers<'a>(_p: &'a mut Processor, _ctx: &'a AppContext) {}
 
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
-        Ok(vec![Box::new(
-            crate::initializers::assets::AssetsInitializer,
-        )])
+        Ok(vec![
+            Box::new(crate::initializers::assets::AssetsInitializer),
+            Box::new(crate::initializers::database::DatabaseInitializer),
+        ])
     }
 
-    fn register_tasks(_tasks: &mut Tasks) {}
+    fn register_tasks(tasks: &mut Tasks) {}
 }
