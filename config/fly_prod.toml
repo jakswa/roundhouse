@@ -24,3 +24,7 @@ primary_region = 'atl'
   cpu_kind = 'shared'
   cpus = 1
   memory_mb = 256
+
+[mounts]
+  source="mio_prod_vol"
+  destination="/mnt/mio_prod_vol"

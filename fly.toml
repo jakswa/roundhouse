@@ -24,3 +24,7 @@ LOCO_ENV="production"
   cpu_kind = "shared"
   cpus = 1
   memory_mb = 256
+
+[mounts]
+  source="mio_nonprod_vol"
+  destination="/mnt/mio_nonprod_vol"
