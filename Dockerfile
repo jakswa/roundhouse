@@ -1,5 +1,5 @@
 # building rust
-FROM rust:1.74-slim as builder
+FROM rust:slim as builder
 WORKDIR /usr/src
 COPY . /usr/src
 # when rust/templates have changed, we'll bust asset caches
