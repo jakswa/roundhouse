@@ -2,25 +2,22 @@
 
 {% block content %}
 <div id="station-view" hx-get hx-swap="morph" hx-trigger="every 10.5s">
-  <h1 class="text-2xl text-center font-bold border-b dark:border-zinc-600 px-4 py-4 capitalize">Train ID {{train_id}}</h1>
 
-  <div class="flex flex-nowrap justify-center mt-4 text-xl">
-    <div class="flex justify-end border-r-2 border-black dark:border-white">
-      <ul class="p-4 text-right">
-        {% for arrival in arrivals %}
-          <li class="capitalize my-6 underline active:text-sky-500">
-            <a href="/stations/{{arrival.url_name()}}%20station?from={{train_id}}">{{arrival.ui_station_name()}}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-    <ul class="list-disc p-4 relative right-1">
-      {% for arrival in arrivals %}
-        <li class="my-6">
-          {{arrival.waiting_time }}
-        </li>
-      {% endfor %}
-    </ul>
+  <div class="relative flex flex-col flex-nowrap justify-center items-center text-2xl">
+    <div class="absolute top-0 -z-5 bottom-0 left-1/2 w-1 bg-black dark:bg-zinc-600 transform -translate-x-1/2"></div>
+
+    <div class="text-4xl mt-8 mb-6 rounded-full px-8 py-4 bg-neutral-200 dark:bg-zinc-600">Train ID {{train_id}}</div>
+
+    {% for arrival in arrivals %}
+      <div class="flex my-4 w-full items-center relative">
+        <div class="flex-1 pr-4 text-right font-medium underline capitalize">
+          <a class="active:text-sky-500" href="/stations/{{arrival.url_name()}}%20station?from={{train_id}}">{{arrival.ui_station_name()}}</a>
+        </div>
+        <div class="h-8 w-8 rounded-full {{ arrival.train_bg_color() }} border-6 dark:border-zinc-800 border-white"></div>
+        <div class="flex-1 pl-4">{{ arrival.waiting_time }}</div>
+      </div>
+    {% endfor %}
   </div>
+
 </div>
 {% endblock %}

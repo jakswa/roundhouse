@@ -122,6 +122,16 @@ impl TrainArrival {
         format!(":{:02}", self.waiting_seconds / 60)
     }
 
+    pub fn train_bg_color(&self) -> &str {
+        match self.line.as_ref() {
+            "RED" => "bg-red-400",
+            "GOLD" => "bg-yellow-400",
+            "GREEN" => "bg-green-400",
+            "BLUE" => "bg-blue-400",
+            _ => "violet-700",
+        }
+    }
+
     pub fn train_color(&self) -> &str {
         match self.line.as_ref() {
             "RED" => "bg-red-400 border-red-500",
