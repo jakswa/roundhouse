@@ -17,21 +17,21 @@ logger:
 # Web server configuration
 server:
   # Port on which the server will listen. the server binding is 0.0.0.0:{PORT}
-  port: 5150
+  port: 8080
   # Binding for the server (which interface to bind to)
-  binding: localhost
+  binding: 0.0.0.0
   # The UI hostname or IP address that mailers will point to.
-  # host: http://localhost
+  host: http://localhost
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
-  # middlewares:
-    # static:
-      # enable: false
-      # must_exist: true
-      # precompressed: false
-      # folder:
-      #   uri: "/static"
-      #   path: "assets/static"
-      # fallback: "assets/static/404.html"
+  middlewares:
+    static:
+      enable: false
+      must_exist: true
+      precompressed: false
+      folder:
+        uri: "/static"
+        path: "assets/static"
+      fallback: "assets/static/404.html"
 
 # Database Configuration
 database:
