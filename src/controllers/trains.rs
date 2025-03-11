@@ -108,10 +108,10 @@ async fn trains_show(Path(train_id): Path<String>) -> impl IntoResponse {
 pub fn routes() -> Routes {
     Routes::new()
         .add("/", get(trains_index))
-        .add("/stations/:station_name", get(trains_station))
-        .add("/trains/:train_id", get(trains_show))
-        .add("/star/:station_name", get(star_station))
-        .add("/unstar/:station_name", get(unstar_station))
+        .add("/stations/{station_name}", get(trains_station))
+        .add("/trains/{train_id}", get(trains_show))
+        .add("/star/{station_name}", get(star_station))
+        .add("/unstar/{station_name}", get(unstar_station))
 }
 
 fn http404() -> axum::response::Response {

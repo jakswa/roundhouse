@@ -4,9 +4,11 @@
 logger:
   # Enable or disable logging.
   enable: true
+  # Enable pretty backtrace (sets RUST_BACKTRACE=1)
+  pretty_backtrace: true
   # Log level, options: trace, debug, info, warn or error.
   level: debug
-  # Define the logging format. options: compact, pretty or Json
+  # Define the logging format. options: compact, pretty or json
   format: compact
   # By default the logger has filtering only logs that came from your code or logs that came from `loco` framework. to see all third party libraries
   # Uncomment the line below to override to see all third party libraries you can enable this config and override the logger filters.
@@ -15,35 +17,39 @@ logger:
 # Web server configuration
 server:
   # Port on which the server will listen. the server binding is 0.0.0.0:{PORT}
-  port: {{ get_env(name="RH_PORT", default=3000) }}
+  port: 5150
+  # Binding for the server (which interface to bind to)
+  binding: localhost
   # The UI hostname or IP address that mailers will point to.
   host: http://localhost
   # Out of the box middleware configuration. to disable middleware you can changed the `enable` field to `false` of comment the middleware block
-  middlewares:
-    # NOTE: not needed due to manually adding in after_routes
-    # compression:
-    #   enable: true
+  # middlewares:
+    # static:
+      # enable: false
+      # must_exist: true
+      # precompressed: false
+      # folder:
+      #   uri: "/static"
+      #   path: "assets/static"
+      # fallback: "assets/static/404.html"
 
-    # Enable Etag cache header middleware
-    etag:
-      enable: true
-    # Allows to limit the payload size request. payload that bigger than this file will blocked the request.
-    limit_payload:
-      # Enable/Disable the middleware.
-      enable: true
-      # the limit size. can be b,kb,kib,mb,mib,gb,gib
-      body_limit: 5mb
-    # Generating a unique request ID and enhancing logging with additional information such as the start and completion of request processing, latency, status code, and other request details.
-    logger:
-      # Enable/Disable the middleware.
-      enable: true
-    # when your code is panicked, the request still returns 500 status code.
-    catch_panic:
-      # Enable/Disable the middleware.
-      enable: true
-    # Timeout for incoming requests middleware. requests that take more time from the configuration will cute and 408 status code will returned.
-    timeout_request:
-      # Enable/Disable the middleware.
-      enable: false
-      # Duration time in milliseconds.
-      timeout: 5000
+# Database Configuration
+database:
+  # Database connection URI
+  uri: {{ get_env(name="DATABASE_URL", default="sqlite://roundhouse_development.sqlite?mode=rwc") }}
+  # When enabled, the sql query will be logged.
+  enable_logging: false
+  # Set the timeout duration when acquiring a connection.
+  connect_timeout: {{ get_env(name="DB_CONNECT_TIMEOUT", default="500") }}
+  # Set the idle duration before closing a connection.
+  idle_timeout: {{ get_env(name="DB_IDLE_TIMEOUT", default="500") }}
+  # Minimum number of connections for a pool.
+  min_connections: {{ get_env(name="DB_MIN_CONNECTIONS", default="1") }}
+  # Maximum number of connections for a pool.
+  max_connections: {{ get_env(name="DB_MAX_CONNECTIONS", default="1") }}
+  # Run migration up when application loaded
+  auto_migrate: true
+  # Truncate database when application loaded. This is a dangerous operation, make sure that you using this flag only on dev environments or test mode
+  dangerously_truncate: false
+  # Recreating schema when application loaded.  This is a dangerous operation, make sure that you using this flag only on dev environments or test mode
+  dangerously_recreate: false

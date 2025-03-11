@@ -23,12 +23,12 @@ impl Initializer for AssetsInitializer {
             // - pre-compressing css/js/etc on deploy
             // - images don't need compression usually
             .nest_service(
-                "/public/:version",
-                serve_dir.fallback(axum::Router::new().fallback(generic_404).into_service()),
+                "/public/{version}",
+                serve_dir.fallback(axum::Router::new().fallback(generic_404)),
             )
             .nest_service(
                 "/images",
-                serve_images.fallback(axum::Router::new().fallback(generic_404).into_service()),
+                serve_images.fallback(axum::Router::new().fallback(generic_404)),
             )
             .fallback(generic_404))
     }

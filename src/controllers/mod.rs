@@ -1,3 +1,4 @@
+pub mod gtfs;
 pub mod trains;
 
 // picking the controller module to house the template glue

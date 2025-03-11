@@ -1,16 +1,23 @@
 use async_trait::async_trait;
 use loco_rs::{
     app::{AppContext, Hooks, Initializer},
+    bgworker::Queue,
     boot::{create_app, BootResult, StartMode},
+    config::Config,
     controller::AppRoutes,
     environment::Environment,
     task::Tasks,
-    worker::Processor,
     Result,
 };
+use migration::Migrator;
+use std::path::Path;
 
-use crate::controllers;
-use crate::tasks;
+#[allow(unused_imports)]
+use crate::{
+    controllers,
+    tasks,
+    // models::_entities::users, workers::downloader::DownloadWorker
+};
 
 pub struct App;
 #[async_trait]
@@ -29,22 +36,43 @@ impl Hooks for App {
         )
     }
 
-    async fn boot(mode: StartMode, environment: &Environment) -> Result<BootResult> {
-        create_app::<Self>(mode, environment).await
+    async fn boot(
+        mode: StartMode,
+        environment: &Environment,
+        config: Config,
+    ) -> Result<BootResult> {
+        create_app::<Self, Migrator>(mode, environment, config).await
     }
-
-    fn routes(_ctx: &AppContext) -> AppRoutes {
-        AppRoutes::empty().add_route(controllers::trains::routes())
-    }
-
-    fn connect_workers<'a>(_p: &'a mut Processor, _ctx: &'a AppContext) {}
 
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
         Ok(vec![
             Box::new(crate::initializers::assets::AssetsInitializer),
-            Box::new(crate::initializers::database::DatabaseInitializer),
+            //Box::new(initializers::view_engine::ViewEngineInitializer,)
         ])
     }
 
-    fn register_tasks(tasks: &mut Tasks) {}
+    fn routes(_ctx: &AppContext) -> AppRoutes {
+        AppRoutes::with_default_routes() // controller routes below
+            .add_route(controllers::gtfs::routes())
+            .add_route(controllers::trains::routes())
+    }
+    async fn connect_workers(_ctx: &AppContext, _queue: &Queue) -> Result<()> {
+        // queue.register(DownloadWorker::build(ctx)).await?;
+        Ok(())
+    }
+
+    #[allow(unused_variables)]
+    fn register_tasks(tasks: &mut Tasks) {
+        // tasks-inject (do not remove)
+        tasks.register(tasks::ingest_schedule::IngestSchedule);
+    }
+    async fn truncate(_ctx: &AppContext) -> Result<()> {
+        //truncate_table(&ctx.db, users::Entity).await?;
+        Ok(())
+    }
+    async fn seed(_ctx: &AppContext, _base: &Path) -> Result<()> {
+        //db::seed::<users::ActiveModel>(&ctx.db, &base.join("users.yaml").display().to_string())
+        //    .await?;
+        Ok(())
+    }
 }
