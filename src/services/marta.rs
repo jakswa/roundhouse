@@ -171,7 +171,7 @@ type ReadOnlyTrains = Arc<TrainStore>;
 
 #[once(time = 10, result = true, sync_writes = true)]
 pub async fn arrivals() -> Result<ReadOnlyTrains, reqwest::Error> {
-    let api_key = std::env::var("MARTA_TRAIN_KEY").expect("we need API KEY now!");
+    let api_key = std::env::var("MARTA_TRAIN_KEY").expect("we need MARTA_TRAIN_KEY now!");
     let url = format!(
         "https://developerservices.itsmarta.com:18096/itsmarta/
 railrealtimearrivals/traindata?apiKey={}",

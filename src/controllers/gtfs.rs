@@ -1,6 +1,3 @@
-#![allow(clippy::missing_errors_doc)]
-#![allow(clippy::unnecessary_struct_initialization)]
-#![allow(clippy::unused_async)]
 use crate::transit_realtime::{FeedMessage, VehiclePosition};
 use cached::proc_macro::cached;
 use prost::Message; // needed for .decode >_<
