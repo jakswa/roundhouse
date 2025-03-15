@@ -47,6 +47,7 @@ impl Hooks for App {
     async fn initializers(_ctx: &AppContext) -> Result<Vec<Box<dyn Initializer>>> {
         Ok(vec![
             Box::new(crate::initializers::assets::AssetsInitializer),
+            Box::new(crate::initializers::reqwest::ReqwestClientInitializer),
             //Box::new(initializers::view_engine::ViewEngineInitializer,)
         ])
     }

@@ -2,7 +2,7 @@ use crate::transit_realtime::{FeedMessage, VehiclePosition};
 use cached::proc_macro::cached;
 use prost::Message; // needed for .decode >_<
 
-use axum::debug_handler;
+use axum::{debug_handler, Extension};
 use loco_rs::prelude::*;
 
 use crate::models::_entities::{shapes, trips};
@@ -16,17 +16,17 @@ pub fn routes() -> Routes {
         .add("vehicle_positions", get(vehicle_positions))
 }
 
-#[derive(serde::Serialize)]
+#[derive(serde::Serialize, Clone)]
 pub struct VehPos {
-    lat: f32,
-    lon: f32,
-    bearing: Option<f32>,
-    speed: Option<f32>,
-    trip_id: Option<String>,
-    route_id: Option<String>,
-    timestamp: Option<u64>,
-    label: Option<String>,
-    vehicle_id: Option<String>,
+    pub lat: f32,
+    pub lon: f32,
+    pub bearing: Option<f32>,
+    pub speed: Option<f32>,
+    pub trip_id: Option<String>,
+    pub route_id: Option<String>,
+    pub timestamp: Option<u64>,
+    pub label: Option<String>,
+    pub vehicle_id: Option<String>,
 }
 
 impl From<VehiclePosition> for VehPos {
@@ -75,23 +75,19 @@ pub async fn index(State(_ctx): State<AppContext>) -> Result<Response> {
 }
 
 #[debug_handler]
-pub async fn trip_updates(State(_ctx): State<AppContext>) -> Result<Response> {
-    let scary_client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .pool_max_idle_per_host(1)
-        .build()
-        .unwrap();
-    format::json(get_trip_updates(&scary_client).await)
+pub async fn trip_updates(
+    State(_ctx): State<AppContext>,
+    Extension(http): Extension<reqwest::Client>,
+) -> Result<Response> {
+    format::json(get_trip_updates(&http).await)
 }
 
 #[debug_handler]
-pub async fn vehicle_positions(State(_ctx): State<AppContext>) -> Result<Response> {
-    let scary_client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .pool_max_idle_per_host(1)
-        .build()
-        .unwrap();
-    format::json(get_vehicle_positions(&scary_client).await)
+pub async fn vehicle_positions(
+    Extension(http): Extension<reqwest::Client>,
+    State(_ctx): State<AppContext>,
+) -> Result<Response> {
+    format::json(get_vehicle_positions(&http).await)
 }
 
 #[debug_handler]

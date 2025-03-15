@@ -1,2 +1,2 @@
 rust: cargo watch -x "loco start" --ignore public
-tailwind: bun install tailwindcss; bunx @tailwindcss/cli -i config/tailwind.css --config config/tailwind.config.js -o public/assets/styles.css --watch
+tailwind: bun install tailwindcss; bunx @tailwindcss/cli -i config/tailwind.css -o public/assets/styles.css --watch

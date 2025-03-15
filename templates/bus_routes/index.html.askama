@@ -1,3 +1,37 @@
-{% extends "layout.html.askama" %}
+{% extends "../layout.html.askama" %}
 
-<h1>hi</h1>
+{% block content %}
+<h1 class="p-2 text-4xl text-center">Routes</h1>
+
+<div class="flex flex-col">
+  {% for rt_route in routes %}
+	<div class="p-2 bg-zinc-900 border-t border-zinc-400">
+		<div class="text-lg">
+		{% if let Some(name) = rt_route.route.route_short_name %}
+			{{name}}:
+		{% endif %}
+		{% if let Some(name) = rt_route.route.route_long_name %}
+			{{name}}
+		{% endif %}
+		</div>
+		<div class="p-2 flex">
+			{% for (maybe_trip, vehicle) in rt_route.trips %}
+				<div class="py-1 px-2 m-1 border rounded">
+				{% if let Some(vid) = vehicle.vehicle_id %} 
+					Vehicle: {{ vid }},
+				{% endif %}
+				Trip:
+				{% if let Some(trip_update) = maybe_trip %}
+					{% if let Some(trip_id) = trip_update.trip.trip_id %}
+						{{ trip_id }}
+					{% endif %}
+				{% else %}
+					N/A
+				{% endif %}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+  {% endfor %}
+</div>
+{% endblock %}
