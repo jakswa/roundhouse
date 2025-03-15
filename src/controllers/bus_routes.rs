@@ -1,6 +1,6 @@
 use crate::controllers::gtfs::VehPos;
 use crate::models::_entities::routes;
-use crate::transit_realtime::{FeedMessage, TripUpdate, VehiclePosition};
+use crate::transit_realtime::TripUpdate;
 use crate::views::bus_routes::BusRoutesIndexResponse;
 
 use axum::Extension;
