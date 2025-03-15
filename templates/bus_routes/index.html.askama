@@ -14,20 +14,14 @@
 			{{name}}
 		{% endif %}
 		</div>
-		<div class="p-2 flex">
-			{% for (maybe_trip, vehicle) in rt_route.trips %}
+		<div class="p-2 flex flex-wrap">
+			{% for (maybe_trip, vehicle, trip) in rt_route.trips %}
 				<div class="py-1 px-2 m-1 border rounded">
-				{% if let Some(vid) = vehicle.vehicle_id %} 
-					Vehicle: {{ vid }},
-				{% endif %}
-				Trip:
-				{% if let Some(trip_update) = maybe_trip %}
-					{% if let Some(trip_id) = trip_update.trip.trip_id %}
-						{{ trip_id }}
+					{% if let Some(headsign) = trip.trip_headsign %}
+						{{ headsign }}
+					{% else %}
+						N/A
 					{% endif %}
-				{% else %}
-					N/A
-				{% endif %}
 				</div>
 			{% endfor %}
 		</div>

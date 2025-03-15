@@ -1,5 +1,5 @@
 use crate::controllers::gtfs::VehPos;
-use crate::models::_entities::routes;
+use crate::models::_entities::{routes, trips};
 use crate::transit_realtime::TripUpdate;
 use crate::views::bus_routes::BusRoutesIndexResponse;
 
@@ -8,7 +8,7 @@ use loco_rs::prelude::*;
 
 pub struct RealtimeRoute {
     pub route: routes::Model,
-    pub trips: Vec<(Option<TripUpdate>, VehPos)>,
+    pub trips: Vec<(Option<TripUpdate>, VehPos, trips::Model)>,
 }
 
 pub fn routes() -> Routes {
@@ -26,6 +26,7 @@ async fn index(
         .into_iter()
         .filter_map(|i| i.trip_update)
         .collect();
+
     let route_ids: Vec<i64> = all_positions
         .iter()
         .filter_map(|i| i.route_id.as_ref().and_then(|j| j.parse::<i64>().ok()))
@@ -34,6 +35,16 @@ async fn index(
         .filter(routes::Column::RouteId.is_in(route_ids))
         .all(&ctx.db)
         .await?;
+
+    let trip_ids: Vec<i64> = all_positions
+        .iter()
+        .filter_map(|i| i.trip_id.as_ref().and_then(|j| j.parse::<i64>().ok()))
+        .collect();
+    let seen_trips: Vec<trips::Model> = trips::Entity::find()
+        .filter(trips::Column::TripId.is_in(trip_ids))
+        .all(&ctx.db)
+        .await?;
+
     seen_routes.sort_by_cached_key(|r| {
         r.route_short_name
             .clone()
@@ -73,7 +84,13 @@ async fn index(
                     let trip_update = trip_match
                         .iter()
                         .find(|trip_update| veh_pos.trip_id == trip_update.trip.trip_id);
-                    (trip_update.cloned(), veh_pos)
+                    let trip_model = seen_trips
+                        .iter()
+                        .find(|t| {
+                            t.trip_id == veh_pos.trip_id.clone().unwrap().parse::<i64>().unwrap()
+                        })
+                        .expect("expecting trip");
+                    (trip_update.cloned(), veh_pos, trip_model.clone())
                 })
                 .collect();
 
