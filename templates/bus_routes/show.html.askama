@@ -1,0 +1,35 @@
+{% extends "../layout.html.askama" %}
+
+{% block content %}
+<h1 class="p-2 text-4xl text-center">
+	Route
+	{% if let Some(name) = route.route.route_short_name %}
+		{{name}}:
+	{% endif %}
+	{% if let Some(name) = route.route.route_long_name %}
+		{{name}}
+	{% endif %}
+</h1>
+
+<div class="flex flex-col">
+	<div class="p-2 bg-zinc-900 border-t border-zinc-400">
+		<div class="p-2 flex">
+			{% for trip_detail in route.trips %}
+				<div class="py-1 px-2 m-1 border rounded">
+					{% if let Some(time) = trip_detail.trip_update.trip.start_time %}
+						@{{ time }},
+					{% endif %}
+					{% if let Some(headsign) = trip_detail.trip.trip_headsign %}
+						{{ headsign }},
+					{% endif %}
+					<!-- dynamic text-green-500 text-red-500 text-pink-500 -->
+					<span class="text-{{trip_detail.timeliness_color()}}-500">
+					{{trip_detail.timeliness()}},
+					</span>
+					{{trip_detail.stops_left()}} stops left
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}

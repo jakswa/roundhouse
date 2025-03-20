@@ -4,28 +4,32 @@
 <h1 class="p-2 text-4xl text-center">Routes</h1>
 
 <div class="flex flex-col">
+  {% if routes.is_empty() %}
+	<div class="text-center">No routes. Maybe it's 3AM, or maybe Jake's code sucks.</div>
+  {% endif %}
   {% for rt_route in routes %}
-	<div class="p-2 bg-zinc-900 border-t border-zinc-400">
-		<div class="text-lg">
-		{% if let Some(name) = rt_route.route.route_short_name %}
-			{{name}}:
-		{% endif %}
-		{% if let Some(name) = rt_route.route.route_long_name %}
-			{{name}}
-		{% endif %}
+		<div class="text-lg p-2 bg-zinc-900 border-t border-zinc-400">
+		<a href="routes/{{rt_route.route.route_id}}">
+			{% if let Some(name) = rt_route.route.route_short_name %}
+				{{name}}:
+			{% endif %}
+			{% if let Some(name) = rt_route.route.route_long_name %}
+				{{name}}
+			{% endif %}
+		</a>
 		</div>
-		<div class="p-2 flex flex-wrap">
-			{% for (maybe_trip, vehicle, trip) in rt_route.trips %}
-				<div class="py-1 px-2 m-1 border rounded">
-					{% if let Some(headsign) = trip.trip_headsign %}
-						{{ headsign }}
-					{% else %}
-						N/A
+		<div class="p-2 flex bg-neutral-800">
+			{% for trip_detail in rt_route.trips %}
+				<a href="trips/{{trip_detail.trip.trip_id}}" class="py-1 px-2 m-1 border rounded">
+					@{{trip_detail.start_time()}}
+					{% if let Some(headsign) = trip_detail.trip.trip_headsign %}
+						{{ headsign }},
 					{% endif %}
-				</div>
+					<!-- dynamic text-green-500 text-red-500 text-pink-500 -->
+					{{trip_detail.stops_left()}} stops left
+				</a>
 			{% endfor %}
 		</div>
-	</div>
   {% endfor %}
 </div>
 {% endblock %}
