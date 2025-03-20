@@ -37,12 +37,10 @@ impl TripSummary {
             .and_then(|i| i.stop_time_update.last())
             .and_then(|stu| stu.arrival)
             .and_then(|arr| arr.time)
+            .and_then(|t| New_York.timestamp_opt(t, 0).single())
         {
-            Some(val) => chrono::DateTime::<chrono::Utc>::from_timestamp(val, 0)
-                .expect("well yeah")
-                .format("%H:%M:%S")
-                .to_string(),
-            None => "N/A".to_string(),
+            Some(val) => val.format("%H:%M:%S").to_string(),
+            _ => "N/A".to_string(),
         }
     }
 }
