@@ -4,7 +4,8 @@ use crate::transit_realtime::TripUpdate;
 use crate::views::bus_routes::*;
 
 use axum::Extension;
-use chrono::TimeZone;
+use chrono::{TimeZone, Utc};
+use chrono_tz::America::New_York;
 use loco_rs::prelude::*;
 
 pub struct TripSummary {
@@ -27,6 +28,21 @@ impl TripSummary {
         {
             Some(val) => val,
             None => "N/A",
+        }
+    }
+    pub fn end_time(&self) -> String {
+        match self
+            .trip_update
+            .as_ref()
+            .and_then(|i| i.stop_time_update.last())
+            .and_then(|stu| stu.arrival)
+            .and_then(|arr| arr.time)
+        {
+            Some(val) => chrono::DateTime::<chrono::Utc>::from_timestamp(val, 0)
+                .expect("well yeah")
+                .format("%H:%M:%S")
+                .to_string(),
+            None => "N/A".to_string(),
         }
     }
 }
@@ -53,38 +69,38 @@ impl TripDetail {
         )
         .ok()
         .and_then(|i| {
-            let date = chrono::Local::now().date_naive();
-            chrono::Local
-                .from_local_datetime(&date.and_time(i))
-                .single()
+            let now = chrono::Utc::now().naive_utc();
+            let ny = New_York.from_utc_datetime(&now).date_naive();
+            New_York.from_local_datetime(&ny.and_time(i)).single()
         })
         .expect("expecting parse-able time");
+        println!("WTF: {}", scheduled.to_rfc2822());
         let seen = self
             .trip_update
             .stop_time_update
             .first()
             .and_then(|stu| stu.departure.and_then(|dep| dep.time))
-            .and_then(|ts| chrono::Utc.timestamp_opt(ts, 0).single());
+            .and_then(|ts| New_York.timestamp_opt(ts, 0).single());
         if seen.is_none() {
             return 0;
         }
+        println!("WTF2: {}", seen.unwrap().to_rfc2822());
         seen.unwrap().timestamp() - scheduled.timestamp()
     }
     pub fn timeliness(&self) -> String {
         let delay = self.delay();
         let min = (delay / 60).abs();
-        // UGH: look at schedule vs API? is "delay" always null/empty bleh
         match delay {
-            0 => "on time".to_string(),
-            1.. => format!("{min}min late"),
-            ..0 => format!("{min}min early"),
+            60.. => format!("{min}min late"),
+            ..=-60 => format!("{min}min early"),
+            _ => "on time".to_string(),
         }
     }
     pub fn timeliness_color(&self) -> &str {
         match self.delay() {
-            0 => "green",
-            1.. => "red",
-            ..0 => "pink",
+            60.. => "red",
+            ..=-60 => "pink",
+            _ => "green",
         }
     }
 }
