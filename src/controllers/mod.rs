@@ -1,6 +1,7 @@
-pub mod gtfs;
-pub mod trains;
 pub mod bus_routes;
+pub mod gtfs;
+pub mod stops;
+pub mod trains;
 
 // picking the controller module to house the template glue
 use askama::Template;

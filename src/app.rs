@@ -57,6 +57,7 @@ impl Hooks for App {
             .add_route(controllers::gtfs::routes())
             .add_route(controllers::trains::routes())
             .add_route(controllers::bus_routes::routes())
+            .add_route(controllers::stops::routes())
     }
     async fn connect_workers(_ctx: &AppContext, _queue: &Queue) -> Result<()> {
         // queue.register(DownloadWorker::build(ctx)).await?;
